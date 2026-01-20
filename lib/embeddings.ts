@@ -1,18 +1,52 @@
-// Generate embeddings - Fallback chain: Hugging Face → OpenRouter → Gemini → OpenAI → Groq (support)
+// Generate embeddings - Fallback chain: Gemini Embeddings (primary) → Hugging Face → OpenRouter → OpenAI
 export async function generateEmbedding(text: string): Promise<number[]> {
-  // Primary: Hugging Face
-  const maxRetries = 3;
   let lastError: Error | null = null;
 
+  // Primary: Gemini Embeddings API (gemini-embedding-001)
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=${process.env.GOOGLE_GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'models/gemini-embedding-001',
+          content: {
+            parts: [{ text: text }],
+          },
+          taskType: 'RETRIEVAL_DOCUMENT', // Optimized for document search (RAG)
+          outputDimensionality: 768, // Recommended size for efficiency
+        }),
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.embedding?.values) {
+        // Normalize embedding for cosine similarity (required for non-3072 dimensions)
+        const values = data.embedding.values;
+        const norm = Math.sqrt(values.reduce((sum: number, val: number) => sum + val * val, 0));
+        return values.map((val: number) => val / norm);
+      }
+    } else {
+      const errorText = await response.text().catch(() => response.statusText);
+      throw new Error(`Gemini embedding failed: ${response.status} ${errorText}`);
+    }
+  } catch (error) {
+    console.log('Gemini embedding failed, trying Hugging Face...', error);
+    lastError = error instanceof Error ? error : new Error(String(error));
+  }
+
+  // Fallback 1: Hugging Face
+  const maxRetries = 2;
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      // Wait for model to load (especially on first request)
       if (attempt > 0) {
         await new Promise((resolve) => setTimeout(resolve, 2000 * attempt));
       }
 
-      // Use the new Hugging Face Inference Providers API (2025)
-      // Try the feature extraction endpoint first
       let response = await fetch(
         'https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2',
         {
@@ -25,7 +59,6 @@ export async function generateEmbedding(text: string): Promise<number[]> {
         }
       );
 
-      // If that fails, try the models endpoint
       if (response.status === 410 || response.status === 404 || response.status === 503) {
         response = await fetch(
           'https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2',
@@ -41,52 +74,28 @@ export async function generateEmbedding(text: string): Promise<number[]> {
       }
 
       if (response.status === 503) {
-        // Model is loading, wait and retry
         const waitTime = parseInt(response.headers.get('retry-after') || '10') * 1000;
         await new Promise((resolve) => setTimeout(resolve, waitTime));
         continue;
       }
 
-      if (!response.ok) {
-        let errorText = '';
-        try {
-          errorText = await response.text();
-        } catch {
-          errorText = response.statusText;
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          return Array.isArray(data[0]) ? data[0] : data;
         }
-        // If it's a 410 Gone, break out of retry loop and use fallback
-        if (response.status === 410) {
-          throw new Error('Hugging Face endpoint deprecated, using fallback');
+        if (data.embeddings) {
+          return data.embeddings[0];
         }
-        throw new Error(`Embedding generation failed: ${response.status} ${response.statusText} - ${errorText}`);
-      }
-
-      const data = await response.json();
-      
-      // Handle different response formats
-      if (Array.isArray(data)) {
-        return Array.isArray(data[0]) ? data[0] : data;
-      }
-      
-      if (data.embeddings) {
-        return data.embeddings[0];
-      }
-      
-      if (Array.isArray(data)) {
         return data;
       }
-      
-      return data;
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
-      if (attempt < maxRetries - 1) {
-        console.log(`Embedding attempt ${attempt + 1} failed, retrying...`);
-        continue;
-      }
+      if (attempt < maxRetries - 1) continue;
     }
   }
 
-  // Fallback 1: OpenRouter (OpenAI embeddings)
+  // Fallback 2: OpenRouter (OpenAI embeddings)
   try {
     console.log('Hugging Face failed, trying OpenRouter embeddings...');
     const response = await fetch('https://openrouter.ai/api/v1/embeddings', {
@@ -108,34 +117,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
       return data.data[0].embedding;
     }
   } catch (error) {
-    console.log('OpenRouter embedding failed, trying Gemini...', error);
-  }
-
-  // Fallback 2: Google Gemini
-  try {
-    console.log('Trying Google Gemini embeddings...');
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${process.env.GOOGLE_GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'models/text-embedding-004',
-          content: {
-            parts: [{ text: text }],
-          },
-        }),
-      }
-    );
-
-    if (response.ok) {
-      const data = await response.json();
-      return data.embedding.values;
-    }
-  } catch (error) {
-    console.log('Gemini embedding failed, trying OpenAI...', error);
+    console.log('OpenRouter embedding failed, trying OpenAI...', error);
   }
 
   // Fallback 3: OpenAI (direct - only if API key is available)
@@ -159,19 +141,8 @@ export async function generateEmbedding(text: string): Promise<number[]> {
         return data.data[0].embedding;
       }
     } catch (error) {
-      console.log('OpenAI embedding failed, trying Groq (support)...', error);
+      console.log('OpenAI embedding failed', error);
     }
-  } else {
-    console.log('OpenAI API key not available, skipping to Groq (support)...');
-  }
-
-  // Fallback 4: Groq (support - note: Groq doesn't have embeddings API, will skip)
-  try {
-    console.log('Trying Groq embeddings (support)...');
-    // Groq doesn't provide embeddings API, so this will fail and throw
-    throw new Error('Groq does not provide embeddings API');
-  } catch (error) {
-    console.log('Groq not available for embeddings');
   }
 
   throw lastError || new Error('All embedding methods failed');
