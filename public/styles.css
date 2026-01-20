@@ -41,3 +41,172 @@
 .dark #cb-ms {
   scrollbar-color: rgb(31, 41, 55) rgb(3, 7, 18);
 }
+
+/* Dark mode overrides for widget container */
+#cb.dark #cb-w {
+  background-color: rgb(17, 24, 39) !important; /* gray-900 */
+}
+
+#cb.dark #cb-w > div:first-child {
+  background-color: rgb(17, 24, 39) !important; /* gray-900 */
+  border-color: rgb(31, 41, 55) !important; /* gray-800 */
+}
+
+#cb.dark #cb-w > div:first-child h3 {
+  color: rgb(255, 255, 255) !important;
+}
+
+#cb.dark #cb-w > div:first-child button {
+  color: rgb(156, 163, 175) !important; /* gray-400 */
+}
+
+#cb.dark #cb-w > div:first-child button:hover {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+}
+
+#cb.dark #cb-d {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  border-color: rgb(55, 65, 81) !important; /* gray-700 */
+}
+
+#cb.dark #cb-d button {
+  color: rgb(229, 231, 235) !important; /* gray-200 */
+}
+
+#cb.dark #cb-d button:hover {
+  background-color: rgb(55, 65, 81) !important; /* gray-700 */
+}
+
+#cb.dark #cb-ms {
+  background-color: rgb(3, 7, 18) !important; /* gray-950 */
+}
+
+#cb.dark #cb-ty {
+  background-color: rgb(3, 7, 18) !important; /* gray-950 */
+}
+
+#cb.dark #cb-f {
+  background-color: rgb(17, 24, 39) !important; /* gray-900 */
+  border-color: rgb(31, 41, 55) !important; /* gray-800 */
+}
+
+#cb.dark #cb-i {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  border-color: rgb(55, 65, 81) !important; /* gray-700 */
+  color: rgb(255, 255, 255) !important;
+}
+
+#cb.dark #cb-i::placeholder {
+  color: rgb(156, 163, 175) !important; /* gray-400 */
+}
+
+#cb.dark #cb-se {
+  color: rgb(209, 213, 219) !important; /* gray-300 */
+}
+
+#cb.dark #cb-se:hover {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+}
+
+/* Light mode (default) - ensure light colors when dark class is not present */
+#cb:not(.dark) #cb-w {
+  background-color: rgb(255, 255, 255) !important; /* white */
+}
+
+#cb:not(.dark) #cb-w > div:first-child {
+  background-color: rgb(255, 255, 255) !important; /* white */
+  border-color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+#cb:not(.dark) #cb-w > div:first-child h3 {
+  color: rgb(17, 24, 39) !important; /* gray-900 */
+}
+
+#cb:not(.dark) #cb-d {
+  background-color: rgb(255, 255, 255) !important; /* white */
+  border-color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+#cb:not(.dark) #cb-d button {
+  color: rgb(55, 65, 81) !important; /* gray-700 */
+}
+
+#cb:not(.dark) #cb-d button:hover {
+  background-color: rgb(249, 250, 251) !important; /* gray-50 */
+}
+
+#cb:not(.dark) #cb-ms {
+  background-color: rgb(249, 250, 251) !important; /* gray-50 */
+}
+
+#cb:not(.dark) #cb-ty {
+  background-color: rgb(249, 250, 251) !important; /* gray-50 */
+}
+
+#cb:not(.dark) #cb-f {
+  background-color: rgb(255, 255, 255) !important; /* white */
+  border-color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+#cb:not(.dark) #cb-i {
+  background-color: rgb(249, 250, 251) !important; /* gray-50 */
+  border-color: rgb(229, 231, 235) !important; /* gray-200 */
+  color: rgb(17, 24, 39) !important; /* gray-900 */
+}
+
+#cb:not(.dark) #cb-i::placeholder {
+  color: rgb(156, 163, 175) !important; /* gray-400 */
+}
+
+#cb:not(.dark) #cb-se {
+  color: rgb(75, 85, 99) !important; /* gray-600 */
+}
+
+#cb:not(.dark) #cb-se:hover {
+  background-color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+/* Message bubbles dark mode */
+#cb.dark #cb-ms .flex.justify-start > div {
+  /* Bot message bubbles */
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+  border-color: rgb(55, 65, 81) !important; /* gray-700 */
+}
+
+#cb.dark #cb-ms .flex.justify-start > div span {
+  color: rgb(209, 213, 219) !important; /* gray-300 */
+}
+
+#cb.dark #cb-ms .flex.justify-start > div > div {
+  color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+/* User message bubbles stay black in both modes */
+#cb.dark #cb-ms .flex.justify-end > div {
+  background-color: rgb(0, 0, 0) !important; /* black */
+  color: rgb(255, 255, 255) !important; /* white */
+  border-color: rgb(75, 85, 99) !important; /* gray-600 */
+}
+
+/* Light mode message bubbles */
+#cb:not(.dark) #cb-ms .flex.justify-start > div {
+  /* Bot message bubbles */
+  background-color: rgb(255, 255, 255) !important; /* white */
+  color: rgb(17, 24, 39) !important; /* gray-900 */
+  border-color: rgb(229, 231, 235) !important; /* gray-200 */
+}
+
+#cb:not(.dark) #cb-ms .flex.justify-start > div span {
+  color: rgb(55, 65, 81) !important; /* gray-700 */
+}
+
+#cb:not(.dark) #cb-ms .flex.justify-start > div > div {
+  color: rgb(17, 24, 39) !important; /* gray-900 */
+}
+
+#cb:not(.dark) #cb-ms .flex.justify-end > div {
+  background-color: rgb(0, 0, 0) !important; /* black */
+  color: rgb(255, 255, 255) !important; /* white */
+  border-color: rgb(229, 231, 235) !important; /* gray-200 */
+}
