@@ -24,10 +24,14 @@ export async function getAIResponse(
   // Primary: Gemini (reliable and free)
   try {
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY!);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    // Use gemini-pro or gemini-1.5-flash-latest (v1beta might not support gemini-1.5-flash)
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
     
-    const prompt = fullMessages
-      .map((m) => `${m.role === 'system' ? 'System' : m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
+    // Build prompt with system message and context
+    let prompt = systemPrompt + (context ? `\n\nFAQ Context:\n${context}` : '') + '\n\n';
+    prompt += messages
+      .filter(m => m.role !== 'system') // Remove system messages (already in prompt)
+      .map((m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
       .join('\n\n');
     
     const result = await model.generateContentStream(prompt);
@@ -61,20 +65,27 @@ export async function getAIResponse(
       },
     });
 
+    // Convert messages to AI SDK format (OpenRouter via OpenAI SDK)
+    const aiMessages = fullMessages.map(msg => ({
+      role: msg.role as 'system' | 'user' | 'assistant',
+      content: msg.content,
+    }));
+
     if (stream) {
       return await streamText({
         model: openaiClient('openai/gpt-4o-mini'),
-        messages: fullMessages,
+        messages: aiMessages,
         temperature: 0.7,
       });
     } else {
       return await generateText({
         model: openaiClient('openai/gpt-4o-mini'),
-        messages: fullMessages,
+        messages: aiMessages,
         temperature: 0.7,
       });
     }
   } catch (error) {
+    console.error('OpenRouter failed:', error);
     throw new Error('All AI models failed');
   }
 }

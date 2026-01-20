@@ -68,14 +68,38 @@ export async function searchVectors(queryVector: number[], topK: number = 3): Pr
   const results: VectorSearchResult[] = [];
   
   for (const key of keys) {
-    const data = await redis.hgetall(key);
-    if (data?.vector) {
-      const vector = JSON.parse(data.vector as string) as number[];
-      const similarity = cosineSimilarity(queryVector, vector);
-      results.push({
-        similarity,
-        metadata: JSON.parse(data.metadata as string) as FAQMetadata,
-      });
+    try {
+      const data = await redis.hgetall(key);
+      if (data?.vector && data?.metadata) {
+        // Safely parse JSON with error handling
+        let vector: number[];
+        let metadata: FAQMetadata;
+        
+        try {
+          const vectorStr = typeof data.vector === 'string' ? data.vector : JSON.stringify(data.vector);
+          vector = JSON.parse(vectorStr) as number[];
+        } catch (e) {
+          console.error(`Failed to parse vector for ${key}:`, e);
+          continue;
+        }
+        
+        try {
+          const metadataStr = typeof data.metadata === 'string' ? data.metadata : JSON.stringify(data.metadata);
+          metadata = JSON.parse(metadataStr) as FAQMetadata;
+        } catch (e) {
+          console.error(`Failed to parse metadata for ${key}:`, e);
+          continue;
+        }
+        
+        const similarity = cosineSimilarity(queryVector, vector);
+        results.push({
+          similarity,
+          metadata,
+        });
+      }
+    } catch (error) {
+      console.error(`Error processing vector ${key}:`, error);
+      continue;
     }
   }
   
