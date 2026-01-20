@@ -3,8 +3,8 @@
 'use strict';
 const C={
   u:window.CHATBOT_BASE_URL||window.location.origin,
-  t:window.CHATBOT_TITLE||'Arnob\'s Assistant',
-  p:window.CHATBOT_PLACEHOLDER||'Ask about Arnob...',
+  t:window.CHATBOT_TITLE||'Chat Assistant',
+  p:window.CHATBOT_PLACEHOLDER||'Message...',
   g:window.CHATBOT_GREETING||'👋 How can I help you today?'
 };
 let open=0,msgs=[],typing=0,menu=0,dark=false;
