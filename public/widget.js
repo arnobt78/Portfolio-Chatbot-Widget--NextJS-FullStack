@@ -7,8 +7,9 @@ const C={
   p:window.CHATBOT_PLACEHOLDER||'Ask about Arnob...',
   g:window.CHATBOT_GREETING||'👋 How can I help you today?'
 };
-let open=0,msgs=[],typing=0,menu=0,dark=matchMedia('(prefers-color-scheme:dark)').matches;
-const $=id=>document.getElementById(id),tog=(e,c,on)=>e.classList.toggle(c,on);
+let open=0,msgs=[],typing=0,menu=0,dark=false;
+try{dark=matchMedia('(prefers-color-scheme:dark)').matches;}catch(e){}
+const $=id=>document.getElementById(id),tog=(e,c,on)=>e&&e.classList&&e.classList.toggle(c,on);
 
 function init(){
   // Create button immediately - appears instantly
@@ -46,37 +47,45 @@ function init(){
 }
 
 function bind(){
-  $('cb-btn').onclick=flip;
-  $('cb-f').onsubmit=send;
-  $('cb-m').onclick=e=>{e.stopPropagation();menu=!menu;tog($('cb-d'),'hidden',!menu);};
-  $('cb-th').onclick=()=>{dark=!dark;theme();menu=0;tog($('cb-d'),'hidden',1);};
-  $('cb-cl').onclick=()=>{msgs=[];draw();menu=0;tog($('cb-d'),'hidden',1);};
-  document.onclick=()=>menu&&(menu=0,tog($('cb-d'),'hidden',1));
+  const btn=$('cb-btn'),form=$('cb-f'),menuBtn=$('cb-m'),themeBtn=$('cb-th'),clearBtn=$('cb-cl'),dropdown=$('cb-d');
+  if(btn)btn.onclick=flip;
+  if(form)form.onsubmit=send;
+  if(menuBtn)menuBtn.onclick=e=>{e.stopPropagation();menu=!menu;tog(dropdown,'hidden',!menu);};
+  if(themeBtn)themeBtn.onclick=()=>{dark=!dark;theme();menu=0;tog(dropdown,'hidden',1);};
+  if(clearBtn)clearBtn.onclick=()=>{msgs=[];draw();menu=0;tog(dropdown,'hidden',1);};
+  document.onclick=()=>menu&&(menu=0,tog(dropdown,'hidden',1));
 }
 
 function theme(){
-  tog($('cb'),'dark',dark);
-  $('cb-tt').textContent=dark?'Light Mode':'Dark Mode';
-  tog($('cb-s'),'hidden',!dark);
-  tog($('cb-n'),'hidden',dark);
+  const cb=$('cb'),tt=$('cb-tt'),s=$('cb-s'),n=$('cb-n');
+  tog(cb,'dark',dark);
+  if(tt)tt.textContent=dark?'Light Mode':'Dark Mode';
+  tog(s,'hidden',!dark);
+  tog(n,'hidden',dark);
 }
 
 function flip(){
   open=!open;
-  const w=$('cb-w'),o=$('cb-o'),x=$('cb-x');
-  tog(w,'opacity-0',!open);
-  tog(w,'scale-95',!open);
-  tog(w,'pointer-events-none',!open);
-  tog(w,'opacity-100',open);
-  tog(w,'scale-100',open);
-  tog(o,'opacity-0',open);
-  tog(o,'scale-50',open);
-  tog(x,'opacity-0',!open);
-  tog(x,'scale-50',!open);
-  tog(x,'opacity-100',open);
-  tog(x,'scale-100',open);
+  const w=$('cb-w'),o=$('cb-o'),x=$('cb-x'),input=$('cb-i');
+  if(w){
+    tog(w,'opacity-0',!open);
+    tog(w,'scale-95',!open);
+    tog(w,'pointer-events-none',!open);
+    tog(w,'opacity-100',open);
+    tog(w,'scale-100',open);
+  }
+  if(o){
+    tog(o,'opacity-0',open);
+    tog(o,'scale-50',open);
+  }
+  if(x){
+    tog(x,'opacity-0',!open);
+    tog(x,'scale-50',!open);
+    tog(x,'opacity-100',open);
+    tog(x,'scale-100',open);
+  }
   if(open){
-    $('cb-i').focus();
+    if(input)input.focus();
     if(!msgs.length)add('assistant',C.g);
   }
 }
@@ -93,22 +102,26 @@ function esc(t){
 }
 
 function draw(){
-  $('cb-ms').innerHTML=msgs.map((m,i)=>m.role==='user'
+  const ms=$('cb-ms');
+  if(!ms)return;
+  ms.innerHTML=msgs.map((m,i)=>m.role==='user'
     ?`<div class="flex justify-end"><div class="bg-black text-white rounded-2xl rounded-br-md px-4 py-3 max-w-[85%]"><div id="m${i}" class="text-sm whitespace-pre-wrap">${esc(m.content)}</div></div></div>`
     :`<div class="flex justify-start"><div class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-2xl rounded-bl-md px-4 py-3 max-w-[85%] border border-gray-200 dark:border-gray-700 shadow-sm"><div class="flex items-center gap-2 mb-2"><div class="w-6 h-6 bg-black rounded-full flex items-center justify-center"><span class="text-white font-bold text-xs">A</span></div><span class="text-sm font-medium text-gray-700 dark:text-gray-300">${C.t}</span></div><div id="m${i}" class="text-sm leading-relaxed whitespace-pre-wrap">${esc(m.content)}</div></div></div>`
   ).join('');
-  $('cb-ms').scrollTop=$('cb-ms').scrollHeight;
+  ms.scrollTop=ms.scrollHeight;
 }
 
 async function send(e){
   e.preventDefault();
-  const m=$('cb-i').value.trim();
+  const input=$('cb-i'),submit=$('cb-se'),typingEl=$('cb-ty'),ms=$('cb-ms');
+  if(!input)return;
+  const m=input.value.trim();
   if(!m||typing)return;
   add('user',m);
-  $('cb-i').value='';
-  $('cb-se').disabled=1;
+  input.value='';
+  if(submit)submit.disabled=1;
   typing=1;
-  tog($('cb-ty'),'hidden',0);
+  tog(typingEl,'hidden',0);
   try{
     const r=await fetch(C.u+'/api/chat',{
       method:'POST',
@@ -116,7 +129,7 @@ async function send(e){
       body:JSON.stringify({message:m}),
       credentials:'include'
     });
-    if(!r.ok)throw 0;
+    if(!r.ok||!r.body)throw new Error('Request failed');
     const rd=r.body.getReader();
     const dc=new TextDecoder();
     let t='',idx=null;
@@ -132,7 +145,7 @@ async function send(e){
           if(p.response){
             t+=p.response;
             if(idx===null){
-              tog($('cb-ty'),'hidden',1);
+              tog(typingEl,'hidden',1);
               typing=0;
               msgs.push({role:'assistant',content:t});
               idx=msgs.length-1;
@@ -142,19 +155,19 @@ async function send(e){
               const el=$('m'+idx);
               if(el)el.innerHTML=esc(t);
             }
-            $('cb-ms').scrollTop=$('cb-ms').scrollHeight;
+            if(ms)ms.scrollTop=ms.scrollHeight;
           }
-        }catch{}
+        }catch(e){}
       }
     }
-  }catch{
-    tog($('cb-ty'),'hidden',1);
+  }catch(e){
+    tog(typingEl,'hidden',1);
     typing=0;
     add('assistant','Sorry, an error occurred.');
   }finally{
-    $('cb-se').disabled=0;
+    if(submit)submit.disabled=0;
     typing=0;
-    tog($('cb-ty'),'hidden',1);
+    tog(typingEl,'hidden',1);
   }
 }
 
@@ -163,12 +176,12 @@ async function load(){
     const r=await fetch(C.u+'/api/history',{credentials:'include'});
     if(r.ok){
       const d=await r.json();
-      if(d.messages?.length){
+      if(d.messages&&Array.isArray(d.messages)&&d.messages.length){
         msgs=d.messages;
         draw();
       }
     }
-  }catch{}
+  }catch(e){}
 }
 
 // Initialize immediately - button appears instantly
