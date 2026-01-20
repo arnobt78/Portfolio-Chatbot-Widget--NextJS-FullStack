@@ -1,0 +1,43 @@
+/* Chatbot Widget Styles - Tailwind CSS utilities */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scrollbar for chat messages */
+#cb-ms::-webkit-scrollbar {
+  width: 8px;
+}
+
+#cb-ms::-webkit-scrollbar-track {
+  background: rgb(249, 250, 251);
+}
+
+#cb-ms::-webkit-scrollbar-thumb {
+  background: rgb(229, 231, 235);
+  border-radius: 4px;
+}
+
+#cb-ms::-webkit-scrollbar-thumb:hover {
+  background: rgb(209, 213, 219);
+}
+
+.dark #cb-ms::-webkit-scrollbar-track {
+  background: rgb(3, 7, 18);
+}
+
+.dark #cb-ms::-webkit-scrollbar-thumb {
+  background: rgb(31, 41, 55);
+}
+
+.dark #cb-ms::-webkit-scrollbar-thumb:hover {
+  background: rgb(55, 65, 81);
+}
+
+#cb-ms {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(229, 231, 235) rgb(249, 250, 251);
+}
+
+.dark #cb-ms {
+  scrollbar-color: rgb(31, 41, 55) rgb(3, 7, 18);
+}
