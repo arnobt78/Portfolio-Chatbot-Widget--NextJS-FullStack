@@ -53,24 +53,28 @@ export async function POST(req: NextRequest) {
         let fullResponse = '';
         
         try {
-          // Handle different return types from getAIResponse
-          if ('textStream' in result && result.textStream) {
-            // StreamTextResult or custom Gemini stream
-            for await (const chunk of result.textStream) {
-              fullResponse += chunk;
-              controller.enqueue(
-                new TextEncoder().encode(`data: ${JSON.stringify({ response: chunk })}\n\n`)
-              );
+          // AI SDK's streamText returns StreamTextResult with .textStream property
+          // Access textStream directly from result
+          const textStream = (result as any)?.textStream;
+          
+          if (textStream && typeof textStream[Symbol.asyncIterator] === 'function') {
+            // It's an async iterable - stream it
+            for await (const chunk of textStream) {
+              if (chunk) {
+                fullResponse += chunk;
+                controller.enqueue(
+                  new TextEncoder().encode(`data: ${JSON.stringify({ response: chunk })}\n\n`)
+                );
+              }
             }
-          } else if ('text' in result && result.text) {
-            // GenerateTextResult or non-streaming response
-            fullResponse = result.text;
-            // Send as single chunk
+          } else if ((result as any)?.text) {
+            // Non-streaming response
+            fullResponse = (result as any).text;
             controller.enqueue(
               new TextEncoder().encode(`data: ${JSON.stringify({ response: fullResponse })}\n\n`)
             );
           } else {
-            throw new Error('Invalid AI response format');
+            throw new Error('No textStream or text found in AI response');
           }
           
           // Save assistant message and session
@@ -86,7 +90,13 @@ export async function POST(req: NextRequest) {
           controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
           controller.close();
         } catch (error) {
-          controller.error(error);
+          console.error('Streaming error:', error);
+          // Send error message to client
+          controller.enqueue(
+            new TextEncoder().encode(`data: ${JSON.stringify({ error: error instanceof Error ? error.message : 'Streaming failed' })}\n\n`)
+          );
+          controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
+          controller.close();
         }
       },
     });
