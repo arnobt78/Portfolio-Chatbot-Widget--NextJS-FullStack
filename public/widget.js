@@ -11,6 +11,14 @@ let open=0,msgs=[],typing=0,menu=0,dark=false;
 try{dark=matchMedia('(prefers-color-scheme:dark)').matches;}catch(e){}
 const $=id=>document.getElementById(id),tog=(e,c,on)=>e&&e.classList&&e.classList.toggle(c,on);
 
+// Add bounce animation keyframes if not exists
+if(!document.getElementById('cb-animations')){
+  const style=document.createElement('style');
+  style.id='cb-animations';
+  style.textContent='@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-25%);}}';
+  document.head.appendChild(style);
+}
+
 function init(){
   // Create button immediately - appears instantly
   const btn=document.createElement('button');
@@ -27,32 +35,35 @@ function init(){
   l.href=C.u+'/styles.css';
   document.head.appendChild(l);
   
-  // Create chat window
+  // Create chat window - convert all Tailwind classes to inline styles
   const d=document.createElement('div');
   d.id='cb';
-  d.innerHTML=`<div id="cb-w" class="fixed bottom-20 w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] h-[calc(100vh-6rem)] max-h-[600px] right-4 sm:bottom-24 sm:top-auto sm:h-[600px] sm:w-[400px] sm:max-w-[400px] sm:right-6 sm:left-auto rounded-2xl shadow-2xl flex flex-col overflow-hidden z-99999 opacity-0 scale-95 pointer-events-none transition-all origin-bottom-right bg-white dark:bg-gray-900">
-<div class="flex items-center justify-between px-3 sm:px-5 py-3 sm:py-4 border-b bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800"><div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1"><div class="w-8 h-8 sm:w-10 sm:h-10 bg-black rounded-full flex items-center justify-center shrink-0"><svg class="w-4 h-4 sm:w-6 sm:h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></div><h3 class="font-semibold text-gray-900 dark:text-white truncate min-w-0">${C.t}</h3></div>
-<div class="relative shrink-0"><button id="cb-m" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"><svg class="w-5 h-5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
-<div id="cb-d" class="hidden absolute right-0 top-full mt-2 w-44 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-1 z-[100]">
-<button id="cb-th" class="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"><svg id="cb-s" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="cb-n" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg><span id="cb-tt">Dark Mode</span></button>
-<button id="cb-cl" class="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Clear Chat</button></div></div></div>
-<div id="cb-ms" class="flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-5 py-3 sm:py-4 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-950"></div>
-<div id="cb-ty" class="hidden px-3 sm:px-5 pb-2 bg-gray-50 dark:bg-gray-950"><div class="flex items-center gap-2 text-gray-400 text-sm"><div class="flex gap-1"><span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span><span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay:.15s"></span><span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay:.3s"></span></div>Thinking...</div></div>
-<form id="cb-f" class="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4 border-t bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800"><input id="cb-i" type="text" class="flex-1 min-w-0 px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600" placeholder="${C.p}" autocomplete="off"/><button type="submit" id="cb-se" class="p-2 sm:p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full disabled:opacity-50 shrink-0"><svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z"/></svg></button></form></div>`;
+  const chatWindowBaseStyle='position:fixed!important;bottom:5rem!important;right:1rem!important;width:calc(100vw - 2rem)!important;max-width:calc(100vw - 2rem)!important;height:calc(100vh - 6rem)!important;max-height:600px!important;border-radius:1rem!important;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25)!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;z-index:99999!important;opacity:0!important;transform:scale(0.95)!important;pointer-events:none!important;background-color:#ffffff!important;transition:opacity 0.2s,transform 0.2s!important;transform-origin:bottom right!important;';
+  d.innerHTML=`<div id="cb-w" style="${chatWindowBaseStyle}">
+<div id="cb-header" style="display:flex!important;align-items:center!important;justify-content:space-between!important;padding:0.75rem 1rem!important;border-bottom:1px solid #f3f4f6!important;background-color:#ffffff!important;flex-shrink:0!important;"><div style="display:flex!important;align-items:center!important;gap:0.5rem!important;min-width:0!important;flex:1!important;"><div id="cb-avatar" style="width:2rem!important;height:2rem!important;background-color:#000000!important;border-radius:9999px!important;display:flex!important;align-items:center!important;justify-content:center!important;flex-shrink:0!important;"><svg style="width:1rem!important;height:1rem!important;color:white!important;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></div><h3 id="cb-title" style="font-size:0.875rem!important;font-weight:600!important;color:#111827!important;margin:0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;">${C.t}</h3></div>
+<div style="position:relative!important;flex-shrink:0!important;"><button id="cb-m" style="padding:0.5rem!important;border:none!important;background:transparent!important;cursor:pointer!important;border-radius:9999px!important;color:#6b7280!important;transition:background-color 0.2s!important;" onmouseover="this.style.backgroundColor='#f3f4f6'" onmouseout="this.style.backgroundColor='transparent'"><svg style="width:1.25rem!important;height:1.25rem!important;color:inherit!important;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+<div id="cb-d" style="display:none!important;position:absolute!important;right:0!important;top:100%!important;margin-top:0.5rem!important;width:11rem!important;background-color:#ffffff!important;border-radius:0.75rem!important;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1),0 4px 6px -2px rgba(0,0,0,0.05)!important;border:1px solid #f3f4f6!important;padding:0.25rem 0!important;z-index:100!important;">
+<button id="cb-th" style="width:100%!important;padding:0.5rem 1rem!important;text-align:left!important;font-size:0.875rem!important;color:#374151!important;background:transparent!important;border:none!important;cursor:pointer!important;display:flex!important;align-items:center!important;gap:0.5rem!important;transition:background-color 0.2s!important;" onmouseover="this.style.backgroundColor='#f9fafb'" onmouseout="this.style.backgroundColor='transparent'"><svg id="cb-s" style="display:none!important;width:1rem!important;height:1rem!important;color:currentColor!important;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="cb-n" style="width:1rem!important;height:1rem!important;color:currentColor!important;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg><span id="cb-tt">Dark Mode</span></button>
+<button id="cb-cl" style="width:100%!important;padding:0.5rem 1rem!important;text-align:left!important;font-size:0.875rem!important;color:#374151!important;background:transparent!important;border:none!important;cursor:pointer!important;display:flex!important;align-items:center!important;gap:0.5rem!important;transition:background-color 0.2s!important;" onmouseover="this.style.backgroundColor='#f9fafb'" onmouseout="this.style.backgroundColor='transparent'"><svg style="width:1rem!important;height:1rem!important;color:currentColor!important;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Clear Chat</button></div></div></div>
+<div id="cb-ms" style="flex:1!important;overflow-y:auto!important;overflow-x:hidden!important;padding:0.75rem 1rem!important;background-color:#f9fafb!important;display:flex!important;flex-direction:column!important;gap:0.75rem!important;"></div>
+<div id="cb-ty" style="display:none!important;padding:0 1rem 0.5rem 1rem!important;background-color:#f9fafb!important;"><div style="display:flex!important;align-items:center!important;gap:0.5rem!important;color:#9ca3af!important;font-size:0.875rem!important;"><div style="display:flex!important;gap:0.25rem!important;"><span style="width:0.5rem!important;height:0.5rem!important;background-color:#9ca3af!important;border-radius:9999px!important;animation:bounce 1.4s infinite!important;"></span><span style="width:0.5rem!important;height:0.5rem!important;background-color:#9ca3af!important;border-radius:9999px!important;animation:bounce 1.4s infinite 0.15s!important;"></span><span style="width:0.5rem!important;height:0.5rem!important;background-color:#9ca3af!important;border-radius:9999px!important;animation:bounce 1.4s infinite 0.3s!important;"></span></div>Thinking...</div></div>
+<form id="cb-f" style="display:flex!important;align-items:center!important;gap:0.5rem!important;padding:0.75rem 1rem!important;border-top:1px solid #f3f4f6!important;background-color:#ffffff!important;flex-shrink:0!important;"><input id="cb-i" type="text" style="flex:1!important;min-width:0!important;padding:0.5rem 1rem!important;background-color:#f9fafb!important;border:1px solid #e5e7eb!important;border-radius:9999px!important;font-size:0.875rem!important;color:#111827!important;outline:none!important;transition:border-color 0.2s,background-color 0.2s!important;" placeholder="${C.p}" autocomplete="off" onfocus="this.style.borderColor='#9ca3af';this.style.outline='2px solid #e5e7eb';this.style.outlineOffset='2px';" onblur="this.style.borderColor='#e5e7eb';this.style.outline='none';"/><button type="submit" id="cb-se" style="padding:0.5rem!important;border:none!important;background:transparent!important;cursor:pointer!important;border-radius:9999px!important;color:#4b5563!important;display:flex!important;align-items:center!important;justify-content:center!important;flex-shrink:0!important;transition:background-color 0.2s!important;" onmouseover="this.style.backgroundColor='#f3f4f6'" onmouseout="this.style.backgroundColor='transparent'"><svg style="width:1rem!important;height:1rem!important;color:inherit!important;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z"/></svg></button></form></div>`;
   document.body.appendChild(d);
   
-  // CRITICAL: Apply inline styles to chat window to ensure positioning works without Tailwind
+  // Apply responsive styles for larger screens
   const chatWindow=$('cb-w');
-  if(chatWindow){
-    chatWindow.style.cssText='position:fixed!important;bottom:5rem!important;right:1rem!important;width:calc(100vw - 2rem)!important;max-width:calc(100vw - 2rem)!important;height:calc(100vh - 6rem)!important;max-height:600px!important;border-radius:1rem!important;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25)!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;z-index:99999!important;opacity:0!important;transform:scale(0.95)!important;pointer-events:none!important;background-color:#ffffff!important;transition:opacity 0.2s,transform 0.2s!important;';
-    // Responsive styles for larger screens
-    if(window.matchMedia('(min-width: 640px)').matches){
-      chatWindow.style.bottom='6rem';
-      chatWindow.style.right='1.5rem';
-      chatWindow.style.width='400px';
-      chatWindow.style.maxWidth='400px';
-      chatWindow.style.height='600px';
-    }
+  if(chatWindow && window.matchMedia('(min-width: 640px)').matches){
+    chatWindow.style.bottom='6rem';
+    chatWindow.style.right='1.5rem';
+    chatWindow.style.width='400px';
+    chatWindow.style.maxWidth='400px';
+    chatWindow.style.height='600px';
+  }
+  
+  // Apply initial dark mode if needed
+  if(dark){
+    const cb=$('cb');
+    if(cb)cb.classList.add('dark');
   }
   
   bind();
@@ -65,25 +76,54 @@ function bind(){
   const btn=$('cb-btn'),form=$('cb-f'),menuBtn=$('cb-m'),themeBtn=$('cb-th'),clearBtn=$('cb-cl'),dropdown=$('cb-d');
   if(btn)btn.onclick=flip;
   if(form)form.onsubmit=send;
-  if(menuBtn)menuBtn.onclick=e=>{e.stopPropagation();menu=!menu;tog(dropdown,'hidden',!menu);};
-  if(themeBtn)themeBtn.onclick=()=>{dark=!dark;theme();menu=0;tog(dropdown,'hidden',1);};
-  if(clearBtn)clearBtn.onclick=()=>{msgs=[];draw();menu=0;tog(dropdown,'hidden',1);};
-  document.onclick=()=>menu&&(menu=0,tog(dropdown,'hidden',1));
+  if(menuBtn)menuBtn.onclick=e=>{e.stopPropagation();menu=!menu;if(dropdown)dropdown.style.display=menu?'block':'none';};
+  if(themeBtn)themeBtn.onclick=()=>{dark=!dark;theme();menu=0;if(dropdown)dropdown.style.display='none';};
+  if(clearBtn)clearBtn.onclick=()=>{msgs=[];draw();menu=0;if(dropdown)dropdown.style.display='none';};
+  document.onclick=()=>{if(menu){menu=0;if(dropdown)dropdown.style.display='none';}};
 }
 
 function theme(){
-  const cb=$('cb'),tt=$('cb-tt'),s=$('cb-s'),n=$('cb-n');
+  const cb=$('cb'),tt=$('cb-tt'),s=$('cb-s'),n=$('cb-n'),w=$('cb-w'),header=$('cb-header'),ms=$('cb-ms'),ty=$('cb-ty'),f=$('cb-f'),i=$('cb-i'),title=$('cb-title'),m=$('cb-m'),d=$('cb-d'),th=$('cb-th'),cl=$('cb-cl'),se=$('cb-se');
   tog(cb,'dark',dark);
   if(tt)tt.textContent=dark?'Light Mode':'Dark Mode';
-  tog(s,'hidden',!dark);
-  tog(n,'hidden',dark);
+  if(s)s.style.display=dark?'block':'none';
+  if(n)n.style.display=dark?'none':'block';
+  
+  // Apply dark mode inline styles
+  if(dark){
+    if(w)w.style.backgroundColor='#111827';
+    if(header){header.style.backgroundColor='#111827';header.style.borderColor='#1f2937';}
+    if(title)title.style.color='#ffffff';
+    if(m){m.style.color='#9ca3af';m.setAttribute('onmouseover',"this.style.backgroundColor='#1f2937'");m.setAttribute('onmouseout',"this.style.backgroundColor='transparent'");}
+    if(d){d.style.backgroundColor='#1f2937';d.style.borderColor='#374151';}
+    if(th){th.style.color='#e5e7eb';th.setAttribute('onmouseover',"this.style.backgroundColor='#374151'");th.setAttribute('onmouseout',"this.style.backgroundColor='transparent'");}
+    if(cl){cl.style.color='#e5e7eb';cl.setAttribute('onmouseover',"this.style.backgroundColor='#374151'");cl.setAttribute('onmouseout',"this.style.backgroundColor='transparent'");}
+    if(ms)ms.style.backgroundColor='#030712';
+    if(ty)ty.style.backgroundColor='#030712';
+    if(f){f.style.backgroundColor='#111827';f.style.borderColor='#1f2937';}
+    if(i){i.style.backgroundColor='#1f2937';i.style.borderColor='#374151';i.style.color='#ffffff';i.setAttribute('placeholder',C.p);}
+    if(se){se.style.color='#d1d5db';se.setAttribute('onmouseover',"this.style.backgroundColor='#1f2937'");se.setAttribute('onmouseout',"this.style.backgroundColor='transparent'");}
+  }else{
+    if(w)w.style.backgroundColor='#ffffff';
+    if(header){header.style.backgroundColor='#ffffff';header.style.borderColor='#f3f4f6';}
+    if(title)title.style.color='#111827';
+    if(m){m.style.color='#6b7280';m.setAttribute('onmouseover',"this.style.backgroundColor='#f3f4f6'");m.setAttribute('onmouseout',"this.style.backgroundColor='transparent'");}
+    if(d){d.style.backgroundColor='#ffffff';d.style.borderColor='#f3f4f6';}
+    if(th){th.style.color='#374151';th.setAttribute('onmouseover',"this.style.backgroundColor='#f9fafb'");th.setAttribute('onmouseout',"this.style.backgroundColor='transparent'");}
+    if(cl){cl.style.color='#374151';cl.setAttribute('onmouseover',"this.style.backgroundColor='#f9fafb'");cl.setAttribute('onmouseout',"this.style.backgroundColor='transparent'");}
+    if(ms)ms.style.backgroundColor='#f9fafb';
+    if(ty)ty.style.backgroundColor='#f9fafb';
+    if(f){f.style.backgroundColor='#ffffff';f.style.borderColor='#f3f4f6';}
+    if(i){i.style.backgroundColor='#f9fafb';i.style.borderColor='#e5e7eb';i.style.color='#111827';i.setAttribute('placeholder',C.p);}
+    if(se){se.style.color='#4b5563';se.setAttribute('onmouseover',"this.style.backgroundColor='#f3f4f6'");se.setAttribute('onmouseout',"this.style.backgroundColor='transparent'");}
+  }
 }
 
 function flip(){
   open=!open;
   const w=$('cb-w'),o=$('cb-o'),x=$('cb-x'),input=$('cb-i');
   if(w){
-    // Use inline styles for reliable positioning without Tailwind
+    // Use inline styles for reliable positioning
     if(open){
       w.style.opacity='1';
       w.style.transform='scale(1)';
@@ -93,21 +133,24 @@ function flip(){
       w.style.transform='scale(0.95)';
       w.style.pointerEvents='none';
     }
-    tog(w,'opacity-0',!open);
-    tog(w,'scale-95',!open);
-    tog(w,'pointer-events-none',!open);
-    tog(w,'opacity-100',open);
-    tog(w,'scale-100',open);
   }
   if(o){
-    tog(o,'opacity-0',open);
-    tog(o,'scale-50',open);
+    if(open){
+      o.style.opacity='0';
+      o.style.transform='scale(0.5)';
+    }else{
+      o.style.opacity='1';
+      o.style.transform='scale(1)';
+    }
   }
   if(x){
-    tog(x,'opacity-0',!open);
-    tog(x,'scale-50',!open);
-    tog(x,'opacity-100',open);
-    tog(x,'scale-100',open);
+    if(open){
+      x.style.opacity='1';
+      x.style.transform='scale(1)';
+    }else{
+      x.style.opacity='0';
+      x.style.transform='scale(0.5)';
+    }
   }
   if(open){
     if(input)input.focus();
@@ -129,9 +172,10 @@ function esc(t){
 function draw(){
   const ms=$('cb-ms');
   if(!ms)return;
+  const isDark=dark;
   ms.innerHTML=msgs.map((m,i)=>m.role==='user'
-    ?`<div class="flex justify-end"><div class="bg-black text-white rounded-2xl rounded-br-md px-4 py-3 max-w-[85%] border border-gray-200 dark:border-gray-600"><div id="m${i}" class="text-sm whitespace-pre-wrap">${esc(m.content)}</div></div></div>`
-    :`<div class="flex justify-start"><div class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-2xl rounded-bl-md px-4 py-3 max-w-[85%] border border-gray-200 dark:border-gray-700 shadow-sm"><div class="flex items-center gap-2 mb-2"><div class="w-6 h-6 bg-black rounded-full flex items-center justify-center"><svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></div><span class="text-sm font-medium text-gray-700 dark:text-gray-300">${C.t}</span></div><div id="m${i}" class="text-sm leading-relaxed whitespace-pre-wrap">${esc(m.content)}</div></div></div>`
+    ?`<div style="display:flex!important;justify-content:flex-end!important;"><div style="background-color:#000000!important;color:#ffffff!important;border-radius:1rem 1rem 0.25rem 1rem!important;padding:0.75rem 1rem!important;max-width:85%!important;border:1px solid ${isDark?'#4b5563':'#e5e7eb'}!important;font-size:0.875rem!important;line-height:1.5!important;white-space:pre-wrap!important;word-wrap:break-word!important;"><div id="m${i}">${esc(m.content)}</div></div></div>`
+    :`<div style="display:flex!important;justify-content:flex-start!important;"><div style="background-color:${isDark?'#1f2937':'#ffffff'}!important;color:${isDark?'#f9fafb':'#111827'}!important;border-radius:1rem 1rem 1rem 0.25rem!important;padding:0.75rem 1rem!important;max-width:85%!important;border:1px solid ${isDark?'#374151':'#e5e7eb'}!important;box-shadow:0 1px 2px 0 rgba(0,0,0,0.05)!important;font-size:0.875rem!important;line-height:1.5!important;white-space:pre-wrap!important;word-wrap:break-word!important;"><div style="display:flex!important;align-items:center!important;gap:0.5rem!important;margin-bottom:0.5rem!important;"><div style="width:1.5rem!important;height:1.5rem!important;background-color:#000000!important;border-radius:9999px!important;display:flex!important;align-items:center!important;justify-content:center!important;flex-shrink:0!important;"><svg style="width:1rem!important;height:1rem!important;color:white!important;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></div><span style="font-size:0.875rem!important;font-weight:500!important;color:${isDark?'#d1d5db':'#374151'}!important;">${C.t}</span></div><div id="m${i}">${esc(m.content)}</div></div></div>`
   ).join('');
   ms.scrollTop=ms.scrollHeight;
 }
@@ -146,7 +190,7 @@ async function send(e){
   input.value='';
   if(submit)submit.disabled=1;
   typing=1;
-  tog(typingEl,'hidden',0);
+  if(typingEl)typingEl.style.display='block';
   try{
     const r=await fetch(C.u+'/api/chat',{
       method:'POST',
@@ -170,7 +214,7 @@ async function send(e){
           if(p.response){
             t+=p.response;
             if(idx===null){
-              tog(typingEl,'hidden',1);
+              if(typingEl)typingEl.style.display='none';
               typing=0;
               msgs.push({role:'assistant',content:t});
               idx=msgs.length-1;
@@ -186,13 +230,13 @@ async function send(e){
       }
     }
   }catch(e){
-    tog(typingEl,'hidden',1);
+    if(typingEl)typingEl.style.display='none';
     typing=0;
     add('assistant','Sorry, an error occurred.');
   }finally{
     if(submit)submit.disabled=0;
     typing=0;
-    tog(typingEl,'hidden',1);
+    if(typingEl)typingEl.style.display='none';
   }
 }
 
