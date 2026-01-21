@@ -1,11 +1,11 @@
-import { NextRequest } from 'next/server';
+// NextRequest not used in this route
 import { faqs } from '@/lib/faqs';
 import { generateEmbeddings } from '@/lib/embeddings';
 import { storeVector } from '@/lib/redis';
 
 export const runtime = 'nodejs'; // Use Node.js runtime for longer operations
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   try {
     // Generate embeddings for all FAQs
     const texts = faqs.map(([q, a]) => `${q} ${a}`);

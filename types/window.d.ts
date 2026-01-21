@@ -8,7 +8,7 @@ declare global {
     CHATBOT_TITLE?: string;
     CHATBOT_GREETING?: string;
     CHATBOT_PLACEHOLDER?: string;
-    gtag?: (...args: any[]) => void;
+    gtag?: (command: string, eventName: string, params?: Record<string, unknown>) => void;
   }
 }
 

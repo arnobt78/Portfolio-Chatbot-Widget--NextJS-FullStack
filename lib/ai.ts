@@ -9,8 +9,14 @@ interface Message {
 }
 
 // AI Model fallback chain: Gemini (reliable) → OpenRouter GPT (backup)
+interface MessageContent {
+  text?: string;
+  content?: string;
+  message?: string;
+}
+
 export async function getAIResponse(
-  messages: Array<{ role: string; content: string | any }>,
+  messages: Array<{ role: string; content: string | unknown[] | MessageContent }>,
   context?: string,
   stream: boolean = true
 ) {
@@ -26,11 +32,12 @@ export async function getAIResponse(
         content = msg.content;
       } else if (Array.isArray(msg.content)) {
         // Handle array format: extract text from objects like [{ type: 'input_text', text: '...' }]
-        content = msg.content
-          .map((item: any) => {
+        content = (msg.content as unknown[])
+          .map((item: unknown) => {
             if (typeof item === 'string') return item;
             if (item && typeof item === 'object') {
-              return item.text || item.content || item.message || '';
+              const itemObj = item as MessageContent;
+              return itemObj.text || itemObj.content || itemObj.message || '';
             }
             return String(item || '');
           })
@@ -38,7 +45,8 @@ export async function getAIResponse(
           .join(' ');
       } else if (msg.content && typeof msg.content === 'object') {
         // Handle object format: { text: '...' } or { content: '...' }
-        content = (msg.content as any).text || (msg.content as any).content || (msg.content as any).message || '';
+        const contentObj = msg.content as MessageContent;
+        content = contentObj.text || contentObj.content || contentObj.message || '';
       } else {
         content = String(msg.content || '');
       }

@@ -65,7 +65,7 @@ async function sendMessage(
         if (parsed.error) {
           throw new Error(parsed.error);
         }
-      } catch (e) {
+      } catch {
         // Skip invalid JSON
       }
     }

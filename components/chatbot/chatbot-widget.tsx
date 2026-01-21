@@ -4,9 +4,9 @@ import * as React from "react";
 import { useChat } from "@/hooks/use-chat";
 import { useWidgetSettings } from "@/hooks/use-widget-settings";
 import { WidgetMenu } from "./widget-menu";
-import { Button } from "@/components/ui/button";
+// Button component not used in this file
 import { cn } from "@/lib/utils";
-import { FONT_SIZES, WIDGET_POSITIONS } from "@/lib/constants";
+import { FONT_SIZES } from "@/lib/constants";
 import { X, Send, Bot } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { ChatHistorySkeleton } from "./message-skeleton";
@@ -16,8 +16,8 @@ import { ChatHistorySkeleton } from "./message-skeleton";
  * Provides the complete chat interface with all features
  */
 export function ChatbotWidget() {
-  const { messages, sendMessage, isSending, streamingMessage, clearChat, isLoading, error } = useChat();
-  const { theme, fontSize, position } = useWidgetSettings();
+  const { messages, sendMessage, isSending, streamingMessage, isLoading, error } = useChat();
+  const { fontSize, position } = useWidgetSettings();
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -31,10 +31,17 @@ export function ChatbotWidget() {
   // Load config from window after mount to avoid hydration mismatch
   useEffect(() => {
     if (typeof window !== "undefined") {
+      interface WindowWithChatbotConfig extends Window {
+        CHATBOT_TITLE?: string;
+        CHATBOT_GREETING?: string;
+        CHATBOT_PLACEHOLDER?: string;
+      }
+      const win = window as WindowWithChatbotConfig;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setConfig({
-        title: (window as any).CHATBOT_TITLE || "Chat Assistant",
-        greeting: (window as any).CHATBOT_GREETING || "👋 How can I help you today?",
-        placeholder: (window as any).CHATBOT_PLACEHOLDER || "Message...",
+        title: win.CHATBOT_TITLE || "Chat Assistant",
+        greeting: win.CHATBOT_GREETING || "👋 How can I help you today?",
+        placeholder: win.CHATBOT_PLACEHOLDER || "Message...",
       });
     }
   }, []);
@@ -73,7 +80,8 @@ export function ChatbotWidget() {
   };
 
   const fontSizeClasses = FONT_SIZES[fontSize];
-  const positionClasses = WIDGET_POSITIONS[position];
+  // Position classes are handled via inline styles in widget.js
+  // const positionClasses = WIDGET_POSITIONS[position];
 
   // Only render if vanilla widget is not present (to avoid conflicts)
   if (typeof window !== "undefined" && document.getElementById("cb-btn")) {

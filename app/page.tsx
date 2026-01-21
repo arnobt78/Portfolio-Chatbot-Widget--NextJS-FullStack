@@ -31,10 +31,10 @@ export default function Home() {
             <div className="rounded-lg bg-zinc-50 p-4 dark:bg-zinc-800">
               <h3 className="mb-2 font-semibold text-black dark:text-zinc-50">🧪 Try These Questions</h3>
               <ul className="space-y-1 text-sm text-zinc-600 dark:text-zinc-400">
-                <li>• "Tell me about Arnob Mahmud"</li>
-                <li>• "Where is Arnob located?"</li>
-                <li>• "What are Arnob's technical skills?"</li>
-                <li>• "How can I contact Arnob?"</li>
+                <li>• &quot;Tell me about Arnob Mahmud&quot;</li>
+                <li>• &quot;Where is Arnob located?&quot;</li>
+                <li>• &quot;What are Arnob&apos;s technical skills?&quot;</li>
+                <li>• &quot;How can I contact Arnob?&quot;</li>
               </ul>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import * as React from "react";
+// React not used in this file
 import { toast as sonnerToast } from "sonner";
 
 /**

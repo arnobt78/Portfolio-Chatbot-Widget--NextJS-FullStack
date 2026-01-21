@@ -18,7 +18,7 @@ import {
   Sun,
   Moon,
   Trash2,
-  Download,
+  // Download icon not used
   HelpCircle,
   MessageSquare,
   Star,
@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import { exportChatAsText, exportChatAsPDF, copyChatToClipboard } from "@/lib/export-utils";
 import type { FontSize, WidgetPosition } from "@/lib/types";
-import { FONT_SIZES, WIDGET_POSITIONS } from "@/lib/constants";
+// FONT_SIZES and WIDGET_POSITIONS not used in this file
 import { useState, useEffect } from "react";
 
 /**
@@ -56,7 +56,12 @@ export function WidgetMenu() {
   // Load chatbot title after mount to avoid hydration mismatch
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setChatbotTitle((window as any).CHATBOT_TITLE || "Chat Assistant");
+      interface WindowWithChatbotConfig extends Window {
+        CHATBOT_TITLE?: string;
+      }
+      const win = window as WindowWithChatbotConfig;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setChatbotTitle(win.CHATBOT_TITLE || "Chat Assistant");
     }
   }, []);
 
@@ -104,7 +109,7 @@ export function WidgetMenu() {
       await copyChatToClipboard(messages);
       toast.success("Chat copied to clipboard");
       setMenuOpen(false);
-    } catch (error) {
+    } catch {
       toast.error("Failed to copy chat");
     }
   };
@@ -144,7 +149,7 @@ export function WidgetMenu() {
       } else {
         toast.error("Failed to submit feedback");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to submit feedback");
     }
   };
@@ -178,7 +183,7 @@ export function WidgetMenu() {
       } else {
         toast.error("Failed to submit rating");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to submit rating");
     }
   };
@@ -209,7 +214,7 @@ export function WidgetMenu() {
       } else {
         toast.error("Failed to report issue");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to report issue");
     }
   };

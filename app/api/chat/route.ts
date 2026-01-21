@@ -55,7 +55,12 @@ export async function POST(req: NextRequest) {
         try {
           // AI SDK's streamText returns StreamTextResult with .textStream property
           // Access textStream directly from result
-          const textStream = (result as any)?.textStream;
+          interface StreamResult {
+            textStream?: AsyncIterable<string>;
+            text?: string;
+          }
+          const streamResult = result as StreamResult;
+          const textStream = streamResult?.textStream;
           
           if (textStream && typeof textStream[Symbol.asyncIterator] === 'function') {
             // It's an async iterable - stream it
@@ -67,9 +72,9 @@ export async function POST(req: NextRequest) {
                 );
               }
             }
-          } else if ((result as any)?.text) {
+          } else if (streamResult?.text) {
             // Non-streaming response
-            fullResponse = (result as any).text;
+            fullResponse = streamResult.text;
             controller.enqueue(
               new TextEncoder().encode(`data: ${JSON.stringify({ response: fullResponse })}\n\n`)
             );

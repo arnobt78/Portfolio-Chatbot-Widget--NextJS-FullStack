@@ -16,6 +16,7 @@ export function useWidgetSettings() {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem(STORAGE_KEYS.THEME) as Theme;
       if (stored && (stored === "light" || stored === "dark")) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setThemeState(stored);
       } else {
         // Default to dark mode if no stored preference
@@ -34,6 +35,7 @@ export function useWidgetSettings() {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem(STORAGE_KEYS.FONT_SIZE) as FontSize;
       if (stored && (stored === "small" || stored === "medium" || stored === "large")) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setFontSizeState(stored);
       }
     }
@@ -48,6 +50,7 @@ export function useWidgetSettings() {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem(STORAGE_KEYS.WIDGET_POSITION) as WidgetPosition;
       if (stored && (stored === "bottom-right" || stored === "bottom-left")) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPositionState(stored);
       }
     }

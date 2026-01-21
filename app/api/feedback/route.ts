@@ -29,12 +29,15 @@ export async function POST(req: NextRequest) {
     }
 
     // Track via Google Analytics (if available)
-    if (typeof window !== "undefined" && (window as any).gtag) {
-      (window as any).gtag("event", "chatbot_feedback", {
-        event_category: "Chatbot",
-        event_label: type,
-        value: rating || 0,
-      });
+    if (typeof window !== "undefined") {
+      const win = window as Window;
+      if (win.gtag) {
+        win.gtag("event", "chatbot_feedback", {
+          event_category: "Chatbot",
+          event_label: type,
+          value: rating || 0,
+        });
+      }
     }
 
     // Send email notification (using a service like Resend, SendGrid, etc.)
