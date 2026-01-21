@@ -160,47 +160,116 @@ function init(){
   }
   window.addEventListener('resize',handleResize);
   
-  // Handle mobile keyboard - adjust widget position relative to button
+  // Handle mobile keyboard - adjust widget position to stay above keyboard
+  // Store position functions globally so they can be called from flip()
+  window._cbSetNormalPosition=null;
+  window._cbSetKeyboardPosition=null;
+  
   function handleKeyboard(){
     const input=$('cb-i'),chatWindow=$('cb-w'),btn=$('cb-btn');
     if(!input||!chatWindow||!btn)return;
-    
-    // Store original positions
-    let originalChatBottom=null;
-    let originalBtnBottom=null;
     
     // Detect if mobile device
     const isMobile=window.matchMedia('(max-width: 639px)').matches;
     if(!isMobile)return;
     
-    // Calculate widget position relative to button
-    const updateWidgetPosition=()=>{
-      // Get button's actual position from viewport (accounts for iOS viewport shifts)
-      const btnRect=btn.getBoundingClientRect();
-      const btnBottomFromViewport=window.innerHeight-btnRect.bottom;
-      const btnHeight=btnRect.height;
+    let keyboardOpen=false;
+    
+    // Set normal position (keyboard closed) - called when widget opens or keyboard closes
+    const setNormalPosition=()=>{
+      // Check if keyboard is actually open - if so, don't set normal position
+      if(window.visualViewport){
+        const vh=window.visualViewport.height;
+        const wh=window.innerHeight;
+        const keyboardHeight=wh-vh;
+        if(keyboardHeight>150){
+          // Keyboard is open, don't set normal position
+          return;
+        }
+      }
       
-      // Calculate gap: distance from button top to widget bottom
-      // On mobile: ~5rem (80px), on desktop: ~6rem (96px)
-      const gapPx=isMobile?80:96;
-      
-      // Widget bottom = button bottom + button height + gap
-      const widgetBottom=btnBottomFromViewport+btnHeight+gapPx;
-      
-      // Set widget position - use fixed positioning relative to button
-      // Calculate right position from button's right edge
-      const btnRightFromViewport=window.innerWidth-btnRect.right;
-      chatWindow.style.bottom=widgetBottom+'px';
-      // Keep right alignment same as button (mobile: 0.75rem, desktop: 1.5rem)
       if(isMobile){
+        chatWindow.style.bottom='5.5rem';
         chatWindow.style.right='0.5rem';
         chatWindow.style.left='0.5rem';
+        chatWindow.style.width='calc(100vw - 1rem)';
+        chatWindow.style.maxWidth='calc(100vw - 1rem)';
+        chatWindow.style.height='calc(100vh - 7rem)';
+        chatWindow.style.maxHeight='calc(100vh - 7rem)';
       }else{
+        chatWindow.style.bottom='6rem';
         chatWindow.style.right='1.5rem';
         chatWindow.style.left='auto';
+        chatWindow.style.width='400px';
+        chatWindow.style.maxWidth='400px';
+        chatWindow.style.height='600px';
+        chatWindow.style.maxHeight='600px';
       }
-      chatWindow.style.transition='bottom 0.3s ease';
+      chatWindow.style.transition='bottom 0.3s ease, height 0.3s ease';
+      keyboardOpen=false;
     };
+    
+    // Set position when keyboard is open - widget stays above keyboard
+    const setKeyboardPosition=()=>{
+      if(window.visualViewport){
+        const vh=window.visualViewport.height;
+        const wh=window.innerHeight;
+        const keyboardHeight=wh-vh;
+        
+        if(keyboardHeight>150){
+          // Keyboard is open - position widget above keyboard
+          // Button stays at its fixed position (0.75rem from bottom = 12px)
+          // Widget body should be above button with gap
+          // Button height is 3rem (48px), gap is 0.5rem (8px)
+          // Widget bottom = button bottom (12px) + button height (48px) + gap (8px) = 68px
+          const btnBottom=12; // 0.75rem
+          const btnHeight=48; // 3rem
+          const gap=8; // 0.5rem
+          const widgetBottom=btnBottom+btnHeight+gap;
+          
+          // Widget height should fit in visual viewport above keyboard
+          // Leave some margin at top (1rem = 16px)
+          const topMargin=16;
+          const widgetHeight=vh-widgetBottom-topMargin;
+          
+          chatWindow.style.bottom=widgetBottom+'px';
+          chatWindow.style.right='0.5rem';
+          chatWindow.style.left='0.5rem';
+          chatWindow.style.width='calc(100vw - 1rem)';
+          chatWindow.style.maxWidth='calc(100vw - 1rem)';
+          chatWindow.style.height=Math.max(widgetHeight,200)+'px';
+          chatWindow.style.maxHeight=Math.max(widgetHeight,200)+'px';
+          chatWindow.style.transition='bottom 0.3s ease, height 0.3s ease';
+          keyboardOpen=true;
+        }else{
+          // Keyboard closed - restore normal position
+          setNormalPosition();
+        }
+      }else{
+        // Fallback: estimate keyboard height (280px typical)
+        const estimatedKeyboardHeight=280;
+        const btnBottom=12;
+        const btnHeight=48;
+        const gap=8;
+        const widgetBottom=btnBottom+btnHeight+gap;
+        const availableHeight=window.innerHeight-estimatedKeyboardHeight-widgetBottom-16;
+        const widgetHeight=Math.max(availableHeight,200);
+        
+        chatWindow.style.bottom=widgetBottom+'px';
+        chatWindow.style.right='0.5rem';
+        chatWindow.style.left='0.5rem';
+        chatWindow.style.width='calc(100vw - 1rem)';
+        chatWindow.style.maxWidth='calc(100vw - 1rem)';
+        chatWindow.style.height=widgetHeight+'px';
+        chatWindow.style.maxHeight=widgetHeight+'px';
+        chatWindow.style.transition='bottom 0.3s ease, height 0.3s ease';
+        keyboardOpen=true;
+      }
+    };
+    
+    // Store functions globally for access from flip()
+    window._cbSetNormalPosition=setNormalPosition;
+    window._cbSetKeyboardPosition=setKeyboardPosition;
     
     // Use Visual Viewport API if available (modern browsers)
     if(window.visualViewport){
@@ -209,21 +278,12 @@ function init(){
         const wh=window.innerHeight;
         const keyboardHeight=wh-vh;
         
-        if(keyboardHeight>150){ // Keyboard is open
-          // Store original positions on first keyboard open
-          if(originalChatBottom===null){
-            originalChatBottom=chatWindow.style.bottom;
-            originalBtnBottom=btn.style.bottom;
-          }
-          // Update widget position relative to button
-          updateWidgetPosition();
-        }else{ // Keyboard is closed
-          // Restore original positions
-          if(originalChatBottom!==null){
-            chatWindow.style.bottom=originalChatBottom;
-            originalBtnBottom=null;
-            originalChatBottom=null;
-          }
+        if(keyboardHeight>150){
+          // Keyboard is open
+          setKeyboardPosition();
+        }else{
+          // Keyboard is closed
+          setNormalPosition();
         }
       };
       
@@ -232,28 +292,25 @@ function init(){
     }else{
       // Fallback: Use focus/blur events
       input.addEventListener('focus',()=>{
-        if(originalChatBottom===null){
-          originalChatBottom=chatWindow.style.bottom;
-          originalBtnBottom=btn.style.bottom;
-        }
-        // Update widget position relative to button
-        updateWidgetPosition();
+        // Small delay to let keyboard appear first
+        setTimeout(()=>{
+          setKeyboardPosition();
+        },150);
       });
       
       input.addEventListener('blur',()=>{
-        if(originalChatBottom!==null){
-          chatWindow.style.bottom=originalChatBottom;
-          originalBtnBottom=null;
-          originalChatBottom=null;
-        }
+        setNormalPosition();
       });
     }
     
-    // Also update on window resize to maintain relative positioning
+    // Also handle window resize
     const resizeHandler=()=>{
-      if(originalChatBottom!==null){
-        // Keyboard is open, maintain relative position
-        updateWidgetPosition();
+      if(keyboardOpen){
+        // Keyboard is open, recalculate position
+        setKeyboardPosition();
+      }else{
+        // Keyboard closed, restore normal
+        setNormalPosition();
       }
     };
     window.addEventListener('resize',resizeHandler);
@@ -360,6 +417,14 @@ function flip(){
       w.style.opacity='1';
       w.style.transform='scale(1)';
       w.style.pointerEvents='auto';
+      // Set normal position when widget opens (keyboard closed state)
+      // The focus handler will detect keyboard and adjust position if needed
+      // Delay to allow keyboard detection to happen first (if keyboard opens on focus)
+      if(window._cbSetNormalPosition){
+        setTimeout(()=>{
+          window._cbSetNormalPosition();
+        },200);
+      }
     }else{
       w.style.opacity='0';
       w.style.transform='scale(0.95)';
