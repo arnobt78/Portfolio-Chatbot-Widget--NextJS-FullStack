@@ -47,17 +47,48 @@ function init(){
 <button id="cb-cl" style="width:100%!important;padding:0.5rem 1rem!important;text-align:left!important;font-size:0.875rem!important;color:#374151!important;background:transparent!important;border:none!important;cursor:pointer!important;display:flex!important;align-items:center!important;gap:0.5rem!important;transition:background-color 0.2s!important;" onmouseover="this.style.backgroundColor='#f9fafb'" onmouseout="this.style.backgroundColor='transparent'"><svg style="width:1rem!important;height:1rem!important;color:currentColor!important;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Clear Chat</button></div></div></div>
 <div id="cb-ms" style="flex:1!important;overflow-y:auto!important;overflow-x:hidden!important;padding:0.75rem 1rem!important;background-color:#f9fafb!important;display:flex!important;flex-direction:column!important;gap:0.75rem!important;"></div>
 <div id="cb-ty" style="display:none!important;padding:0 1rem 0.5rem 1rem!important;background-color:#f9fafb!important;"><div style="display:flex!important;align-items:center!important;gap:0.5rem!important;color:#9ca3af!important;font-size:0.875rem!important;"><div style="display:flex!important;gap:0.25rem!important;"><span style="width:0.5rem!important;height:0.5rem!important;background-color:#9ca3af!important;border-radius:9999px!important;animation:bounce 1.4s infinite!important;"></span><span style="width:0.5rem!important;height:0.5rem!important;background-color:#9ca3af!important;border-radius:9999px!important;animation:bounce 1.4s infinite 0.15s!important;"></span><span style="width:0.5rem!important;height:0.5rem!important;background-color:#9ca3af!important;border-radius:9999px!important;animation:bounce 1.4s infinite 0.3s!important;"></span></div>Thinking...</div></div>
-<form id="cb-f" style="display:flex!important;align-items:center!important;gap:0.5rem!important;padding:0.75rem 1rem!important;border-top:1px solid #f3f4f6!important;background-color:#ffffff!important;flex-shrink:0!important;"><input id="cb-i" type="text" style="flex:1!important;min-width:0!important;padding:0.5rem 1rem!important;background-color:#f9fafb!important;border:1px solid #e5e7eb!important;border-radius:9999px!important;font-size:0.875rem!important;color:#111827!important;outline:none!important;transition:border-color 0.2s,background-color 0.2s!important;" placeholder="${C.p}" autocomplete="off" onfocus="const isDark=document.getElementById('cb')&&document.getElementById('cb').classList.contains('dark');this.style.borderColor=isDark?'#9ca3af':'#6b7280';this.style.outline='none';" onblur="const isDark=document.getElementById('cb')&&document.getElementById('cb').classList.contains('dark');this.style.borderColor=isDark?'#374151':'#e5e7eb';this.style.outline='none';"/><button type="submit" id="cb-se" style="padding:0.5rem!important;border:none!important;background:transparent!important;cursor:pointer!important;border-radius:9999px!important;color:#4b5563!important;display:flex!important;align-items:center!important;justify-content:center!important;flex-shrink:0!important;transition:background-color 0.2s!important;" onmouseover="this.style.backgroundColor='#f3f4f6'" onmouseout="this.style.backgroundColor='transparent'"><svg style="width:1rem!important;height:1rem!important;color:inherit!important;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z"/></svg></button></form></div>`;
+<form id="cb-f" style="display:flex!important;align-items:center!important;gap:0.5rem!important;padding:0.75rem 1rem!important;border-top:1px solid #f3f4f6!important;background-color:#ffffff!important;flex-shrink:0!important;"><input id="cb-i" type="text" style="flex:1!important;min-width:0!important;padding:0.5rem 1rem!important;background-color:#f9fafb!important;border:1px solid #e5e7eb!important;border-radius:9999px!important;font-size:0.875rem!important;color:#111827!important;outline:none!important;transition:border-color 0.2s,background-color 0.2s,color 0.2s!important;" placeholder="${C.p}" autocomplete="off" onfocus="const isDark=document.getElementById('cb')&&document.getElementById('cb').classList.contains('dark');this.style.borderColor=isDark?'#d1d5db':'#6b7280';this.style.outline='none';" onblur="const isDark=document.getElementById('cb')&&document.getElementById('cb').classList.contains('dark');this.style.borderColor=isDark?'#374151':'#e5e7eb';this.style.outline='none';"/><button type="submit" id="cb-se" style="padding:0.5rem!important;border:none!important;background:transparent!important;cursor:pointer!important;border-radius:9999px!important;color:#4b5563!important;display:flex!important;align-items:center!important;justify-content:center!important;flex-shrink:0!important;transition:background-color 0.2s!important;" onmouseover="this.style.backgroundColor='#f3f4f6'" onmouseout="this.style.backgroundColor='transparent'"><svg style="width:1rem!important;height:1rem!important;color:inherit!important;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z"/></svg></button></form></div>`;
   document.body.appendChild(d);
   
   // Apply responsive styles for larger screens
   const chatWindow=$('cb-w');
-  if(chatWindow && window.matchMedia('(min-width: 640px)').matches){
-    chatWindow.style.bottom='6rem';
-    chatWindow.style.right='1.5rem';
-    chatWindow.style.width='400px';
-    chatWindow.style.maxWidth='400px';
-    chatWindow.style.height='600px';
+  if(chatWindow){
+    // Mobile-first: ensure it fits on phone screens
+    // On mobile: use calc() values that fit within viewport
+    // On desktop: use fixed sizes
+    if(window.matchMedia('(min-width: 640px)').matches){
+      // Desktop/Tablet: fixed size
+      chatWindow.style.bottom='6rem';
+      chatWindow.style.right='1.5rem';
+      chatWindow.style.width='400px';
+      chatWindow.style.maxWidth='400px';
+      chatWindow.style.height='600px';
+    }else{
+      // Mobile: ensure it fits on screen with proper margins
+      chatWindow.style.bottom='5.5rem';
+      chatWindow.style.right='0.5rem';
+      chatWindow.style.left='0.5rem';
+      chatWindow.style.width='calc(100vw - 1rem)';
+      chatWindow.style.maxWidth='calc(100vw - 1rem)';
+      chatWindow.style.height='calc(100vh - 7rem)';
+      chatWindow.style.maxHeight='calc(100vh - 7rem)';
+    }
+  }
+  
+  // Make button responsive for mobile
+  const btn=$('cb-btn');
+  if(btn){
+    if(window.matchMedia('(min-width: 640px)').matches){
+      btn.style.bottom='1.5rem';
+      btn.style.right='1.5rem';
+      btn.style.width='3.5rem';
+      btn.style.height='3.5rem';
+    }else{
+      btn.style.bottom='1rem';
+      btn.style.right='1rem';
+      btn.style.width='3rem';
+      btn.style.height='3rem';
+    }
   }
   
   // Apply initial dark mode if needed
@@ -68,6 +99,45 @@ function init(){
   
   bind();
   theme();
+  
+  // Handle window resize for responsive behavior
+  function handleResize(){
+    const chatWindow=$('cb-w'),btn=$('cb-btn');
+    if(chatWindow){
+      if(window.matchMedia('(min-width: 640px)').matches){
+        chatWindow.style.bottom='6rem';
+        chatWindow.style.right='1.5rem';
+        chatWindow.style.left='auto';
+        chatWindow.style.width='400px';
+        chatWindow.style.maxWidth='400px';
+        chatWindow.style.height='600px';
+        chatWindow.style.maxHeight='600px';
+      }else{
+        chatWindow.style.bottom='5.5rem';
+        chatWindow.style.right='0.5rem';
+        chatWindow.style.left='0.5rem';
+        chatWindow.style.width='calc(100vw - 1rem)';
+        chatWindow.style.maxWidth='calc(100vw - 1rem)';
+        chatWindow.style.height='calc(100vh - 7rem)';
+        chatWindow.style.maxHeight='calc(100vh - 7rem)';
+      }
+    }
+    if(btn){
+      if(window.matchMedia('(min-width: 640px)').matches){
+        btn.style.bottom='1.5rem';
+        btn.style.right='1.5rem';
+        btn.style.width='3.5rem';
+        btn.style.height='3.5rem';
+      }else{
+        btn.style.bottom='1rem';
+        btn.style.right='1rem';
+        btn.style.width='3rem';
+        btn.style.height='3rem';
+      }
+    }
+  }
+  window.addEventListener('resize',handleResize);
+  
   // Load history in background (non-blocking)
   setTimeout(()=>load().catch(()=>{}),100);
 }
@@ -107,9 +177,11 @@ function theme(){
       i.style.color='#ffffff';
       i.setAttribute('placeholder',C.p);
       // Update focus handler for dark mode - brighter border (replaces default, no outline)
-      // Use #9ca3af for better visibility in dark mode (lighter than #6b7280)
-      i.setAttribute('onfocus',"this.style.borderColor='#9ca3af';this.style.outline='none';");
+      // Use #d1d5db for much better visibility in dark mode (lighter gray, similar to light mode visibility)
+      i.setAttribute('onfocus',"this.style.borderColor='#d1d5db';this.style.outline='none';");
       i.setAttribute('onblur',"this.style.borderColor='#374151';this.style.outline='none';");
+      // Add smooth transition to prevent flicker
+      i.style.transition='border-color 0.2s,background-color 0.2s,color 0.2s';
     }
     if(se){se.style.color='#d1d5db';se.setAttribute('onmouseover',"this.style.backgroundColor='#1f2937'");se.setAttribute('onmouseout',"this.style.backgroundColor='transparent'");}
     // Redraw messages with correct dark mode colors
@@ -133,6 +205,8 @@ function theme(){
       // Update focus handler for light mode - darker border (replaces default, no outline)
       i.setAttribute('onfocus',"this.style.borderColor='#6b7280';this.style.outline='none';");
       i.setAttribute('onblur',"this.style.borderColor='#e5e7eb';this.style.outline='none';");
+      // Add smooth transition to prevent flicker
+      i.style.transition='border-color 0.2s,background-color 0.2s,color 0.2s';
     }
     if(se){se.style.color='#4b5563';se.setAttribute('onmouseover',"this.style.backgroundColor='#f3f4f6'");se.setAttribute('onmouseout',"this.style.backgroundColor='transparent'");}
     // Redraw messages with correct light mode colors
