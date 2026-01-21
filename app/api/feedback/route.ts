@@ -53,35 +53,50 @@ ${email ? `Email: ${email}` : ""}
     // TODO: Integrate with email service (Resend, SendGrid, etc.)
     console.log("Feedback received:", emailData);
 
+    const origin = req.headers.get('origin');
+    const allowedOrigin = origin || '*';
+    
     return new Response(
       JSON.stringify({ success: true, message: "Thank you for your feedback!" }),
       {
         status: 200,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Origin": allowedOrigin,
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Cookie",
         },
       }
     );
   } catch (error) {
     console.error("Feedback error:", error);
+    const origin = req.headers.get('origin');
+    const allowedOrigin = origin || '*';
     return new Response(
       JSON.stringify({ error: "Failed to submit feedback" }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": allowedOrigin,
+          "Access-Control-Allow-Credentials": "true",
+        },
       }
     );
   }
 }
 
-export async function OPTIONS() {
+export async function OPTIONS(req: NextRequest) {
+  const origin = req.headers.get('origin');
+  const allowedOrigin = origin || '*';
   return new Response(null, {
     status: 200,
     headers: {
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": allowedOrigin,
+      "Access-Control-Allow-Credentials": "true",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Headers": "Content-Type, Cookie",
     },
   });
 }

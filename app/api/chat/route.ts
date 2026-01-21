@@ -101,14 +101,19 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Get origin for CORS
+    const origin = req.headers.get('origin');
+    const allowedOrigin = origin || '*';
+    
     // Set cookie if new session
     const headers = new Headers({
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': allowedOrigin,
+      'Access-Control-Allow-Credentials': 'true',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type, Cookie',
     });
 
     if (!match) {
@@ -131,13 +136,16 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function OPTIONS() {
+export async function OPTIONS(req: NextRequest) {
+  const origin = req.headers.get('origin');
+  const allowedOrigin = origin || '*';
   return new Response(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': allowedOrigin,
+      'Access-Control-Allow-Credentials': 'true',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type, Cookie',
     },
   });
 }
