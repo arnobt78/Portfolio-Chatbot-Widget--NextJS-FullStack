@@ -7,25 +7,54 @@ import { STORAGE_KEYS } from "@/lib/constants";
  * Persists settings to localStorage and provides reactive updates
  */
 export function useWidgetSettings() {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window === "undefined") return "system";
-    const stored = localStorage.getItem(STORAGE_KEYS.THEME) as Theme;
-    return stored || "system";
-  });
+  // Initialize with "dark" as default to avoid hydration mismatch
+  // Update from localStorage after mount
+  const [theme, setThemeState] = useState<Theme>("dark");
 
-  const [fontSize, setFontSizeState] = useState<FontSize>(() => {
-    if (typeof window === "undefined") return "medium";
-    const stored = localStorage.getItem(STORAGE_KEYS.FONT_SIZE) as FontSize;
-    return stored || "medium";
-  });
+  // Load theme from localStorage after mount, default to "dark" if not set
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem(STORAGE_KEYS.THEME) as Theme;
+      if (stored && (stored === "light" || stored === "dark")) {
+        setThemeState(stored);
+      } else {
+        // Default to dark mode if no stored preference
+        setThemeState("dark");
+        localStorage.setItem(STORAGE_KEYS.THEME, "dark");
+      }
+    }
+  }, []);
 
-  const [position, setPositionState] = useState<WidgetPosition>(() => {
-    if (typeof window === "undefined") return "bottom-right";
-    const stored = localStorage.getItem(STORAGE_KEYS.WIDGET_POSITION) as WidgetPosition;
-    return stored || "bottom-right";
-  });
+  // Initialize with "medium" to avoid hydration mismatch
+  // Update from localStorage after mount
+  const [fontSize, setFontSizeState] = useState<FontSize>("medium");
 
-  // Apply theme to document
+  // Load fontSize from localStorage after mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem(STORAGE_KEYS.FONT_SIZE) as FontSize;
+      if (stored && (stored === "small" || stored === "medium" || stored === "large")) {
+        setFontSizeState(stored);
+      }
+    }
+  }, []);
+
+  // Initialize with "bottom-right" to avoid hydration mismatch
+  // Update from localStorage after mount
+  const [position, setPositionState] = useState<WidgetPosition>("bottom-right");
+
+  // Load position from localStorage after mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem(STORAGE_KEYS.WIDGET_POSITION) as WidgetPosition;
+      if (stored && (stored === "bottom-right" || stored === "bottom-left")) {
+        setPositionState(stored);
+      }
+    }
+  }, []);
+
+  // Apply theme to widget elements
+  // Apply dark class to BOTH html (for Tailwind dark: classes) AND widget container (for our CSS)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -33,42 +62,36 @@ export function useWidgetSettings() {
     const widget = document.getElementById("cb");
     const widgetReact = document.getElementById("cb-react");
 
-    const isDark = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    // Determine if dark mode should be active
+    // Simple toggle: dark = true, light = false
+    const isDark = theme === "dark";
 
+    // Apply dark class to HTML root (for Tailwind dark: classes to work)
     if (isDark) {
       root.classList.add("dark");
-      widget?.classList.add("dark");
-      widgetReact?.classList.add("dark");
     } else {
       root.classList.remove("dark");
-      widget?.classList.remove("dark");
-      widgetReact?.classList.remove("dark");
+    }
+
+    // ALSO apply dark class directly to widget containers (for our CSS overrides)
+    // This ensures both Tailwind classes and our CSS rules work
+    if (widget) {
+      if (isDark) {
+        widget.classList.add("dark");
+      } else {
+        widget.classList.remove("dark");
+      }
+    }
+    
+    if (widgetReact) {
+      if (isDark) {
+        widgetReact.classList.add("dark");
+      } else {
+        widgetReact.classList.remove("dark");
+      }
     }
   }, [theme]);
 
-  // Listen for system theme changes
-  useEffect(() => {
-    if (typeof window === "undefined" || theme !== "system") return;
-
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = () => {
-      const root = document.documentElement;
-      const widget = document.getElementById("cb");
-      const widgetReact = document.getElementById("cb-react");
-      if (mediaQuery.matches) {
-        root.classList.add("dark");
-        widget?.classList.add("dark");
-        widgetReact?.classList.add("dark");
-      } else {
-        root.classList.remove("dark");
-        widget?.classList.remove("dark");
-        widgetReact?.classList.remove("dark");
-      }
-    };
-
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, [theme]);
 
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);

@@ -210,3 +210,124 @@
   color: rgb(255, 255, 255) !important; /* white */
   border-color: rgb(229, 231, 235) !important; /* gray-200 */
 }
+
+/* React Widget - Force light/dark styles with highest specificity */
+/* Light mode (default) - ensure light colors when dark class is not present */
+#cb-react:not(.dark),
+html:not(.dark) #cb-react {
+  background-color: rgb(255, 255, 255) !important; /* white */
+}
+
+#cb-react:not(.dark) > div:first-child,
+html:not(.dark) #cb-react > div:first-child {
+  background-color: rgb(255, 255, 255) !important; /* white */
+  border-color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+#cb-react:not(.dark) > div:first-child h3,
+html:not(.dark) #cb-react > div:first-child h3 {
+  color: rgb(17, 24, 39) !important; /* gray-900 */
+}
+
+#cb-react:not(.dark) > div:first-child button,
+html:not(.dark) #cb-react > div:first-child button {
+  color: rgb(55, 65, 81) !important; /* gray-700 */
+}
+
+#cb-react:not(.dark) > div:first-child button:hover,
+html:not(.dark) #cb-react > div:first-child button:hover {
+  background-color: rgb(249, 250, 251) !important; /* gray-50 */
+}
+
+#cb-react:not(.dark) > div:nth-child(2),
+html:not(.dark) #cb-react > div:nth-child(2) {
+  background-color: rgb(249, 250, 251) !important; /* gray-50 */
+}
+
+#cb-react:not(.dark) > div:nth-child(3),
+html:not(.dark) #cb-react > div:nth-child(3) {
+  background-color: rgb(255, 255, 255) !important; /* white */
+  border-color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+#cb-react:not(.dark) input,
+html:not(.dark) #cb-react input {
+  background-color: rgb(249, 250, 251) !important; /* gray-50 */
+  border-color: rgb(229, 231, 235) !important; /* gray-200 */
+  color: rgb(17, 24, 39) !important; /* gray-900 */
+}
+
+#cb-react:not(.dark) input::placeholder,
+html:not(.dark) #cb-react input::placeholder {
+  color: rgb(156, 163, 175) !important; /* gray-400 */
+}
+
+#cb-react:not(.dark) button[type="submit"],
+html:not(.dark) #cb-react button[type="submit"] {
+  color: rgb(75, 85, 99) !important; /* gray-600 */
+}
+
+#cb-react:not(.dark) button[type="submit"]:hover,
+html:not(.dark) #cb-react button[type="submit"]:hover {
+  background-color: rgb(243, 244, 246) !important; /* gray-100 */
+}
+
+/* Dark mode overrides for React widget container */
+#cb-react.dark,
+html.dark #cb-react {
+  background-color: rgb(17, 24, 39) !important; /* gray-900 */
+}
+
+#cb-react.dark > div:first-child,
+html.dark #cb-react > div:first-child {
+  background-color: rgb(17, 24, 39) !important; /* gray-900 */
+  border-color: rgb(31, 41, 55) !important; /* gray-800 */
+}
+
+#cb-react.dark > div:first-child h3,
+html.dark #cb-react > div:first-child h3 {
+  color: rgb(255, 255, 255) !important;
+}
+
+#cb-react.dark > div:first-child button,
+html.dark #cb-react > div:first-child button {
+  color: rgb(156, 163, 175) !important; /* gray-400 */
+}
+
+#cb-react.dark > div:first-child button:hover,
+html.dark #cb-react > div:first-child button:hover {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+}
+
+#cb-react.dark > div:nth-child(2),
+html.dark #cb-react > div:nth-child(2) {
+  background-color: rgb(3, 7, 18) !important; /* gray-950 */
+}
+
+#cb-react.dark > div:nth-child(3),
+html.dark #cb-react > div:nth-child(3) {
+  background-color: rgb(17, 24, 39) !important; /* gray-900 */
+  border-color: rgb(31, 41, 55) !important; /* gray-800 */
+}
+
+#cb-react.dark input,
+html.dark #cb-react input {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+  border-color: rgb(55, 65, 81) !important; /* gray-700 */
+  color: rgb(255, 255, 255) !important;
+}
+
+#cb-react.dark input::placeholder,
+html.dark #cb-react input::placeholder {
+  color: rgb(156, 163, 175) !important; /* gray-400 */
+}
+
+#cb-react.dark button[type="submit"],
+html.dark #cb-react button[type="submit"] {
+  color: rgb(209, 213, 219) !important; /* gray-300 */
+}
+
+#cb-react.dark button[type="submit"]:hover,
+html.dark #cb-react button[type="submit"]:hover {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+}

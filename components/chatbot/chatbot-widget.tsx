@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { FONT_SIZES, WIDGET_POSITIONS } from "@/lib/constants";
 import { X, Send, Bot } from "lucide-react";
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ChatHistorySkeleton } from "./message-skeleton";
 
 /**
@@ -17,18 +17,27 @@ import { ChatHistorySkeleton } from "./message-skeleton";
  */
 export function ChatbotWidget() {
   const { messages, sendMessage, isSending, streamingMessage, clearChat, isLoading, error } = useChat();
-  const { fontSize, position } = useWidgetSettings();
+  const { theme, fontSize, position } = useWidgetSettings();
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const [config, setConfig] = useState({
+    title: "Chat Assistant",
+    greeting: "👋 How can I help you today?",
+    placeholder: "Message...",
+  });
 
-  // Memoize config to prevent unnecessary re-renders
-  const config = useMemo(() => ({
-    title: typeof window !== "undefined" ? (window as any).CHATBOT_TITLE || "Chat Assistant" : "Chat Assistant",
-    greeting: typeof window !== "undefined" ? (window as any).CHATBOT_GREETING || "👋 How can I help you today?" : "👋 How can I help you today?",
-    placeholder: typeof window !== "undefined" ? (window as any).CHATBOT_PLACEHOLDER || "Message..." : "Message...",
-  }), []);
+  // Load config from window after mount to avoid hydration mismatch
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setConfig({
+        title: (window as any).CHATBOT_TITLE || "Chat Assistant",
+        greeting: (window as any).CHATBOT_GREETING || "👋 How can I help you today?",
+        placeholder: (window as any).CHATBOT_PLACEHOLDER || "Message...",
+      });
+    }
+  }, []);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -78,8 +87,13 @@ export function ChatbotWidget() {
         id="cb-btn-react"
         onClick={handleToggle}
         className={cn(
-          "fixed w-14 h-14 bg-black rounded-full shadow-2xl flex items-center justify-center cursor-pointer hover:scale-110 transition-all z-99999",
-          positionClasses
+          "fixed w-14 h-14 bg-black rounded-full shadow-2xl flex items-center justify-center cursor-pointer hover:scale-110 transition-all z-[99998]",
+          // Mobile: always visible, above widget
+          "bottom-4",
+          position === "bottom-right" ? "right-4" : "left-4",
+          // Desktop positioning
+          "sm:bottom-6",
+          position === "bottom-right" ? "sm:right-6" : "sm:left-6",
         )}
         style={{
           pointerEvents: "auto",
@@ -109,32 +123,40 @@ export function ChatbotWidget() {
       <div
         id="cb-react"
         className={cn(
-          "fixed bottom-24 rounded-2xl shadow-2xl flex flex-col overflow-hidden z-99999 transition-all origin-bottom-right bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700",
-          position === "bottom-right" ? "right-6" : "left-6",
+          "fixed rounded-2xl shadow-2xl flex flex-col overflow-hidden z-99999 transition-all origin-bottom-right bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700",
+          // Mobile: fixed size, positioned like desktop but fits screen
+          "bottom-20 w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] h-[calc(100vh-6rem)] max-h-[600px]",
+          position === "bottom-right" ? "right-4" : "left-4",
+          // Desktop: fixed positioning and size
+          "sm:bottom-24 sm:top-auto sm:h-[600px] sm:w-[400px] sm:max-w-[400px]",
+          position === "bottom-right" ? "sm:right-6 sm:left-auto" : "sm:left-6 sm:right-auto",
           isOpen
-            ? "opacity-100 scale-100 pointer-events-auto w-[400px] h-[600px]"
-            : "opacity-0 scale-95 pointer-events-none w-0 h-0",
+            ? "opacity-100 scale-100 pointer-events-auto"
+            : "opacity-0 scale-95 pointer-events-none w-0 h-0 sm:w-0 sm:h-0",
           fontSizeClasses.base
         )}
+        style={{ pointerEvents: isOpen ? 'auto' : 'none' }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center shrink-0">
-              <Bot className="w-6 h-6 text-white" />
+        <div className="flex items-center justify-between px-3 sm:px-5 py-3 sm:py-4 border-b bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 shrink-0 relative overflow-visible z-[100]">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-black rounded-full flex items-center justify-center shrink-0">
+              <Bot className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
             </div>
-            <h3 className={cn("font-semibold text-gray-900 dark:text-white truncate", fontSizeClasses.base)}>
+            <h3 className={cn("font-semibold text-gray-900 dark:text-white truncate min-w-0", fontSizeClasses.base)}>
               {config.title}
             </h3>
           </div>
-          <WidgetMenu />
+          <div className="relative shrink-0 z-[101]">
+            <WidgetMenu />
+          </div>
         </div>
 
         {/* Messages Container */}
         <div
           ref={messagesContainerRef}
           className={cn(
-            "flex-1 overflow-y-auto px-5 py-4 space-y-4 bg-gray-50 dark:bg-gray-950",
+            "flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-5 py-3 sm:py-4 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-950",
             fontSizeClasses.message
           )}
         >
@@ -245,7 +267,7 @@ export function ChatbotWidget() {
         {/* Input Form */}
         <form
           onSubmit={handleSubmit}
-          className="flex items-center gap-3 px-4 py-4 border-t bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 shrink-0"
+          className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4 border-t bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 shrink-0"
         >
           <input
             id="chatbot-input"
@@ -255,7 +277,7 @@ export function ChatbotWidget() {
             placeholder={config.placeholder}
             disabled={isSending}
             className={cn(
-              "flex-1 px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600",
+              "flex-1 min-w-0 px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600",
               fontSizeClasses.base
             )}
             autoComplete="off"
@@ -263,9 +285,9 @@ export function ChatbotWidget() {
           <button
             type="submit"
             disabled={isSending || !inputValue.trim()}
-            className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full disabled:opacity-50 transition-colors"
+            className="p-2 sm:p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full disabled:opacity-50 transition-colors shrink-0"
           >
-            <Send className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+            <Send className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-300" />
           </button>
         </form>
       </div>

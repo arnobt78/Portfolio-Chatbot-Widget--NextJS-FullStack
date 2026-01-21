@@ -1,26 +1,53 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
+  /* CSS variables default to light to prevent dark flash in light mode */
+  /* Script will override immediately based on localStorage */
   --background: #ffffff;
   --foreground: #171717;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Script sets background-color via inline style - CSS variables are fallback only */
+html {
+  /* Default to light to prevent dark flash - script will override immediately */
+  --background: #ffffff;
+  --foreground: #171717;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Light mode CSS variables */
+html:not(.dark) {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+/* Dark mode CSS variables (default) */
+html.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  /* Script will set background-color via inline style with !important - no default needed */
+  /* Disable background color transitions during initial load to prevent flash */
+  transition: background-color 0s, color 0s !important;
+}
+
+/* Ensure no background transition flash on initial page load */
+html {
+  /* Script will set background-color via inline style with !important - no default needed */
+  transition: background-color 0s, color 0s !important;
+}
+
+/* Re-enable smooth transitions after page load */
+html.loaded body {
+  transition: background-color 0.2s ease, color 0.2s ease !important;
+}
+
+html.loaded {
+  transition: background-color 0.2s ease !important;
 }

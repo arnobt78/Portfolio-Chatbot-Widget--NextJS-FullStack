@@ -31,4 +31,4 @@ export interface FeedbackData {
 
 export type FontSize = "small" | "medium" | "large";
 export type WidgetPosition = "bottom-right" | "bottom-left";
-export type Theme = "light" | "dark" | "system";
+export type Theme = "dark" | "light";

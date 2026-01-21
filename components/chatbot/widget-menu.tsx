@@ -32,7 +32,7 @@ import {
 import { exportChatAsText, exportChatAsPDF, copyChatToClipboard } from "@/lib/export-utils";
 import type { FontSize, WidgetPosition } from "@/lib/types";
 import { FONT_SIZES, WIDGET_POSITIONS } from "@/lib/constants";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 /**
  * Widget menu component with all Phase 2 features
@@ -51,15 +51,26 @@ export function WidgetMenu() {
   const [feedbackComment, setFeedbackComment] = useState("");
   const [feedbackEmail, setFeedbackEmail] = useState("");
 
-  const isDark = theme === "dark" || (theme === "system" && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const [chatbotTitle, setChatbotTitle] = useState("Chat Assistant");
   
-  // Get dynamic chatbot title for About dialog
-  const chatbotTitle = typeof window !== "undefined" ? (window as any).CHATBOT_TITLE || "Chat Assistant" : "Chat Assistant";
+  // Load chatbot title after mount to avoid hydration mismatch
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setChatbotTitle((window as any).CHATBOT_TITLE || "Chat Assistant");
+    }
+  }, []);
+
+  // Calculate if dark mode is active for UI display
+  // Simple: dark = true, light = false
+  const isDark = theme === "dark";
 
   const handleThemeToggle = () => {
-    if (theme === "light") setTheme("dark");
-    else if (theme === "dark") setTheme("system");
-    else setTheme("light");
+    // Simple toggle between dark and light
+    if (theme === "dark") {
+      setTheme("light");
+    } else {
+      setTheme("dark");
+    }
     setMenuOpen(false);
   };
 
@@ -205,24 +216,33 @@ export function WidgetMenu() {
 
   return (
     <>
-      <div className="relative">
+      <div className="relative z-[100]">
         <button
-          id="cb-m"
+          id="cb-m-react"
           onClick={(e) => {
             e.stopPropagation();
-            setMenuOpen(!menuOpen);
+            e.preventDefault();
+            setMenuOpen((prev) => !prev);
           }}
-          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors relative z-[101] pointer-events-auto cursor-pointer"
           aria-label="Menu"
+          type="button"
+          style={{ pointerEvents: 'auto', cursor: 'pointer' }}
         >
-          <Settings className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+          <Settings className="w-5 h-5 text-gray-500 dark:text-gray-400 pointer-events-none" />
         </button>
 
         {menuOpen && (
           <div
-            id="cb-d"
-            className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 z-50"
+            id="cb-d-react"
+            className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 z-[101] pointer-events-auto"
             onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            style={{ pointerEvents: 'auto' }}
           >
             {/* Theme Toggle */}
             <button
@@ -507,8 +527,23 @@ export function WidgetMenu() {
       {/* Close menu when clicking outside */}
       {menuOpen && (
         <div
-          className="fixed inset-0 z-40"
-          onClick={() => setMenuOpen(false)}
+          className="fixed inset-0 z-[99] pointer-events-auto"
+          onClick={(e) => {
+            // Only close if clicking the overlay itself, not menu elements
+            const target = e.target as HTMLElement;
+            if (
+              target === e.currentTarget ||
+              (!target.closest('#cb-m-react') && !target.closest('#cb-d-react'))
+            ) {
+              setMenuOpen(false);
+            }
+          }}
+          onMouseDown={(e) => {
+            const target = e.target as HTMLElement;
+            if (target.closest('#cb-m-react') || target.closest('#cb-d-react')) {
+              e.stopPropagation();
+            }
+          }}
         />
       )}
     </>
