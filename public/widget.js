@@ -47,7 +47,7 @@ function init(){
 <button id="cb-cl" style="width:100%!important;padding:0.5rem 1rem!important;text-align:left!important;font-size:0.875rem!important;color:#374151!important;background:transparent!important;border:none!important;cursor:pointer!important;display:flex!important;align-items:center!important;gap:0.5rem!important;transition:background-color 0.2s!important;" onmouseover="this.style.backgroundColor='#f9fafb'" onmouseout="this.style.backgroundColor='transparent'"><svg style="width:1rem!important;height:1rem!important;color:currentColor!important;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Clear Chat</button></div></div></div>
 <div id="cb-ms" style="flex:1!important;overflow-y:auto!important;overflow-x:hidden!important;padding:0.75rem 1rem!important;background-color:#f9fafb!important;display:flex!important;flex-direction:column!important;gap:0.75rem!important;"></div>
 <div id="cb-ty" style="display:none!important;padding:0 1rem 0.5rem 1rem!important;background-color:#f9fafb!important;"><div style="display:flex!important;align-items:center!important;gap:0.5rem!important;color:#9ca3af!important;font-size:0.875rem!important;"><div style="display:flex!important;gap:0.25rem!important;"><span style="width:0.5rem!important;height:0.5rem!important;background-color:#9ca3af!important;border-radius:9999px!important;animation:bounce 1.4s infinite!important;"></span><span style="width:0.5rem!important;height:0.5rem!important;background-color:#9ca3af!important;border-radius:9999px!important;animation:bounce 1.4s infinite 0.15s!important;"></span><span style="width:0.5rem!important;height:0.5rem!important;background-color:#9ca3af!important;border-radius:9999px!important;animation:bounce 1.4s infinite 0.3s!important;"></span></div>Thinking...</div></div>
-<form id="cb-f" style="display:flex!important;align-items:center!important;gap:0.5rem!important;padding:0.75rem 1rem!important;border-top:1px solid #f3f4f6!important;background-color:#ffffff!important;flex-shrink:0!important;"><input id="cb-i" type="text" style="flex:1!important;min-width:0!important;padding:0.5rem 1rem!important;background-color:#f9fafb!important;border:1px solid #e5e7eb!important;border-radius:9999px!important;font-size:0.875rem!important;color:#111827!important;outline:none!important;transition:border-color 0.2s,background-color 0.2s!important;" placeholder="${C.p}" autocomplete="off" onfocus="this.style.borderColor='#9ca3af';this.style.outline='2px solid #e5e7eb';this.style.outlineOffset='2px';" onblur="this.style.borderColor='#e5e7eb';this.style.outline='none';"/><button type="submit" id="cb-se" style="padding:0.5rem!important;border:none!important;background:transparent!important;cursor:pointer!important;border-radius:9999px!important;color:#4b5563!important;display:flex!important;align-items:center!important;justify-content:center!important;flex-shrink:0!important;transition:background-color 0.2s!important;" onmouseover="this.style.backgroundColor='#f3f4f6'" onmouseout="this.style.backgroundColor='transparent'"><svg style="width:1rem!important;height:1rem!important;color:inherit!important;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z"/></svg></button></form></div>`;
+<form id="cb-f" style="display:flex!important;align-items:center!important;gap:0.5rem!important;padding:0.75rem 1rem!important;border-top:1px solid #f3f4f6!important;background-color:#ffffff!important;flex-shrink:0!important;"><input id="cb-i" type="text" style="flex:1!important;min-width:0!important;padding:0.5rem 1rem!important;background-color:#f9fafb!important;border:1px solid #e5e7eb!important;border-radius:9999px!important;font-size:0.875rem!important;color:#111827!important;outline:none!important;transition:border-color 0.2s,background-color 0.2s!important;" placeholder="${C.p}" autocomplete="off" onfocus="const isDark=document.getElementById('cb')&&document.getElementById('cb').classList.contains('dark');this.style.borderColor=isDark?'#4b5563':'#9ca3af';this.style.outline=isDark?'2px solid #374151':'2px solid #e5e7eb';this.style.outlineOffset='2px';" onblur="this.style.borderColor='#e5e7eb';this.style.outline='none';"/><button type="submit" id="cb-se" style="padding:0.5rem!important;border:none!important;background:transparent!important;cursor:pointer!important;border-radius:9999px!important;color:#4b5563!important;display:flex!important;align-items:center!important;justify-content:center!important;flex-shrink:0!important;transition:background-color 0.2s!important;" onmouseover="this.style.backgroundColor='#f3f4f6'" onmouseout="this.style.backgroundColor='transparent'"><svg style="width:1rem!important;height:1rem!important;color:inherit!important;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z"/></svg></button></form></div>`;
   document.body.appendChild(d);
   
   // Apply responsive styles for larger screens
@@ -101,7 +101,14 @@ function theme(){
     if(ms)ms.style.backgroundColor='#030712';
     if(ty)ty.style.backgroundColor='#030712';
     if(f){f.style.backgroundColor='#111827';f.style.borderColor='#1f2937';}
-    if(i){i.style.backgroundColor='#1f2937';i.style.borderColor='#374151';i.style.color='#ffffff';i.setAttribute('placeholder',C.p);}
+    if(i){
+      i.style.backgroundColor='#1f2937';
+      i.style.borderColor='#374151';
+      i.style.color='#ffffff';
+      i.setAttribute('placeholder',C.p);
+      // Update focus handler for dark mode - darker border
+      i.setAttribute('onfocus',"this.style.borderColor='#4b5563';this.style.outline='2px solid #374151';this.style.outlineOffset='2px';");
+    }
     if(se){se.style.color='#d1d5db';se.setAttribute('onmouseover',"this.style.backgroundColor='#1f2937'");se.setAttribute('onmouseout',"this.style.backgroundColor='transparent'");}
   }else{
     if(w)w.style.backgroundColor='#ffffff';
@@ -114,7 +121,14 @@ function theme(){
     if(ms)ms.style.backgroundColor='#f9fafb';
     if(ty)ty.style.backgroundColor='#f9fafb';
     if(f){f.style.backgroundColor='#ffffff';f.style.borderColor='#f3f4f6';}
-    if(i){i.style.backgroundColor='#f9fafb';i.style.borderColor='#e5e7eb';i.style.color='#111827';i.setAttribute('placeholder',C.p);}
+    if(i){
+      i.style.backgroundColor='#f9fafb';
+      i.style.borderColor='#e5e7eb';
+      i.style.color='#111827';
+      i.setAttribute('placeholder',C.p);
+      // Update focus handler for light mode
+      i.setAttribute('onfocus',"this.style.borderColor='#9ca3af';this.style.outline='2px solid #e5e7eb';this.style.outlineOffset='2px';");
+    }
     if(se){se.style.color='#4b5563';se.setAttribute('onmouseover',"this.style.backgroundColor='#f3f4f6'");se.setAttribute('onmouseout',"this.style.backgroundColor='transparent'");}
   }
 }
@@ -190,7 +204,13 @@ async function send(e){
   input.value='';
   if(submit)submit.disabled=1;
   typing=1;
-  if(typingEl)typingEl.style.display='block';
+  // Wait for scroll to complete before showing typing indicator
+  // This ensures the user message is fully visible before the "Thinking..." overlay appears
+  setTimeout(()=>{
+    if(typingEl)typingEl.style.display='block';
+    // Scroll again after showing typing indicator to ensure it's visible
+    if(ms)ms.scrollTop=ms.scrollHeight;
+  },100);
   try{
     const r=await fetch(C.u+'/api/chat',{
       method:'POST',
