@@ -4,7 +4,7 @@ A production-ready, self-hosted RAG (Retrieval Augmented Generation) chatbot wid
 
 - **Live Demo:** [https://portfolio-chatbot-widget.vercel.app/](https://portfolio-chatbot-widget.vercel.app/)
 
-- **Production Live:** [https://arnob-mahmud.vercel.app/](https://arnob-mahmud.vercel.app/)
+- **Production Live:** [https://www.arnobmahmud.com/](https://www.arnobmahmud.com/)
 
 ---
 
@@ -868,7 +868,7 @@ The codebase is well-documented and structured for easy understanding and extens
 
 Feel free to use this project repository and extend this project further!
 
-If you have any questions or want to share your work, reach out via GitHub or my portfolio at [https://arnob-mahmud.vercel.app/](https://arnob-mahmud.vercel.app/).
+If you have any questions or want to share your work, reach out via GitHub or my portfolio at [https://www.arnobmahmud.com/](https://www.arnobmahmud.com/).
 
 **Enjoy building and learning!** 🚀
 

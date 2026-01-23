@@ -11,7 +11,7 @@ export const faqs = [
   ],
   [
     "What is Arnob's contact information?",
-    "You can contact Arnob via email at arnobt78@gmail.com (primary) or arnob_t78@yahoo.com (CV email), phone at +49 1573 4664351, LinkedIn at https://www.linkedin.com/in/arnob-mahmud-05839655/, GitHub at https://github.com/arnobt78/, or visit his portfolio at https://arnob-mahmud.vercel.app. His Skype ID is arnob_t78.",
+    "You can contact Arnob via email at arnobt78@gmail.com (primary) or arnob_t78@yahoo.com (CV email), phone at +49 1573 4664351, LinkedIn at https://www.linkedin.com/in/arnob-mahmud-05839655/, GitHub at https://github.com/arnobt78/, or visit his portfolio at https://www.arnobmahmud.com. His Skype ID is arnob_t78.",
   ],
 
   // ==================== Services Page (2 FAQs) ====================
