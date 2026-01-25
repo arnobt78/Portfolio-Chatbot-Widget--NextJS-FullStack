@@ -51,3 +51,47 @@ html.loaded body {
 html.loaded {
   transition: background-color 0.2s ease !important;
 }
+
+/* Custom scrollbar styling for chatbot messages container */
+.chatbot-messages-scrollbar::-webkit-scrollbar {
+  width: 6px; /* Thin scrollbar */
+}
+
+.chatbot-messages-scrollbar::-webkit-scrollbar-track {
+  background: transparent; /* Transparent track */
+  border: none; /* No border */
+}
+
+.chatbot-messages-scrollbar::-webkit-scrollbar-thumb {
+  background: rgb(229, 231, 235); /* Light gray for light mode */
+  border-radius: 3px;
+}
+
+.chatbot-messages-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgb(209, 213, 219); /* Slightly darker on hover in light mode */
+}
+
+/* Dark mode scrollbar styling */
+.dark .chatbot-messages-scrollbar::-webkit-scrollbar-track {
+  background: transparent; /* Transparent track - matches chat body bg (gray-950) */
+  border: none; /* No border */
+}
+
+.dark .chatbot-messages-scrollbar::-webkit-scrollbar-thumb {
+  background: rgb(17, 24, 39); /* gray-900 - same as header bg */
+  border-radius: 3px;
+}
+
+.dark .chatbot-messages-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgb(31, 41, 55); /* Slightly lighter on hover */
+}
+
+/* Firefox scrollbar styling */
+.chatbot-messages-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(229, 231, 235) transparent; /* Light mode: gray thumb, transparent track */
+}
+
+.dark .chatbot-messages-scrollbar {
+  scrollbar-color: rgb(17, 24, 39) transparent; /* Dark mode: gray-900 thumb, transparent track */
+}

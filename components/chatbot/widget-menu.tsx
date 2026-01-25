@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { toast } from "@/components/ui/toast";
 import {
   Sun,
@@ -29,7 +30,11 @@ import {
   FileText,
   FileDown,
 } from "lucide-react";
-import { exportChatAsText, exportChatAsPDF, copyChatToClipboard } from "@/lib/export-utils";
+import {
+  exportChatAsText,
+  exportChatAsPDF,
+  copyChatToClipboard,
+} from "@/lib/export-utils";
 import type { FontSize, WidgetPosition } from "@/lib/types";
 // FONT_SIZES and WIDGET_POSITIONS not used in this file
 import { useState, useEffect } from "react";
@@ -47,12 +52,13 @@ export function WidgetMenu() {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [ratingOpen, setRatingOpen] = useState(false);
   const [newChatOpen, setNewChatOpen] = useState(false);
+  const [clearChatOpen, setClearChatOpen] = useState(false);
   const [feedbackRating, setFeedbackRating] = useState(0);
   const [feedbackComment, setFeedbackComment] = useState("");
   const [feedbackEmail, setFeedbackEmail] = useState("");
 
   const [chatbotTitle, setChatbotTitle] = useState("Chat Assistant");
-  
+
   // Load chatbot title after mount to avoid hydration mismatch
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -116,7 +122,6 @@ export function WidgetMenu() {
 
   const handleNewChat = () => {
     clearChat();
-    setNewChatOpen(false);
     setMenuOpen(false);
     toast.success("Started new chat");
   };
@@ -237,7 +242,7 @@ export function WidgetMenu() {
           className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors relative z-[101] pointer-events-auto cursor-pointer"
           aria-label="Menu"
           type="button"
-          style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+          style={{ pointerEvents: "auto", cursor: "pointer" }}
         >
           <Settings className="w-5 h-5 text-gray-500 dark:text-gray-400 pointer-events-none" />
         </button>
@@ -248,7 +253,7 @@ export function WidgetMenu() {
             className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 z-[101] pointer-events-auto"
             onClick={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.stopPropagation()}
-            style={{ pointerEvents: 'auto' }}
+            style={{ pointerEvents: "auto" }}
           >
             {/* Theme Toggle */}
             <button
@@ -290,37 +295,38 @@ export function WidgetMenu() {
             </button>
 
             {/* New Chat */}
-            <Dialog open={newChatOpen} onOpenChange={setNewChatOpen}>
-              <DialogTrigger asChild>
-                <button className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2">
-                  <RotateCcw className="w-4 h-4" />
-                  <span>New Chat</span>
-                </button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Start New Chat?</DialogTitle>
-                  <DialogDescription>
-                    This will clear your current conversation. Are you sure?
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setNewChatOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleNewChat}>Start New Chat</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <button
+              onClick={() => setNewChatOpen(true)}
+              className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>New Chat</span>
+            </button>
+            <ConfirmationDialog
+              open={newChatOpen}
+              onOpenChange={setNewChatOpen}
+              title="Start New Chat?"
+              description="This will clear your current conversation. Are you sure?"
+              confirmText="Start New Chat"
+              onConfirm={handleNewChat}
+            />
 
             {/* Clear Chat */}
             <button
-              onClick={handleClearChat}
+              onClick={() => setClearChatOpen(true)}
               className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
             >
               <Trash2 className="w-4 h-4" />
               <span>Clear Chat</span>
             </button>
+            <ConfirmationDialog
+              open={clearChatOpen}
+              onOpenChange={setClearChatOpen}
+              title="Clear Chat?"
+              description="This will clear your current conversation. Are you sure?"
+              confirmText="Clear Chat"
+              onConfirm={handleClearChat}
+            />
 
             <div className="border-t border-gray-100 dark:border-gray-700 my-1" />
 
@@ -357,22 +363,24 @@ export function WidgetMenu() {
                 Position
               </div>
               <div className="flex gap-2">
-                {(["bottom-right", "bottom-left"] as WidgetPosition[]).map((pos) => (
-                  <button
-                    key={pos}
-                    onClick={() => {
-                      setPosition(pos);
-                      setMenuOpen(false);
-                    }}
-                    className={`px-2 py-1 text-xs rounded ${
-                      position === pos
-                        ? "bg-black text-white dark:bg-white dark:text-black"
-                        : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-                    }`}
-                  >
-                    {pos === "bottom-right" ? "Right" : "Left"}
-                  </button>
-                ))}
+                {(["bottom-right", "bottom-left"] as WidgetPosition[]).map(
+                  (pos) => (
+                    <button
+                      key={pos}
+                      onClick={() => {
+                        setPosition(pos);
+                        setMenuOpen(false);
+                      }}
+                      className={`px-2 py-1 text-xs rounded ${
+                        position === pos
+                          ? "bg-black text-white dark:bg-white dark:text-black"
+                          : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                      }`}
+                    >
+                      {pos === "bottom-right" ? "Right" : "Left"}
+                    </button>
+                  ),
+                )}
               </div>
             </div>
 
@@ -390,20 +398,28 @@ export function WidgetMenu() {
                 <DialogHeader>
                   <DialogTitle>About {chatbotTitle}</DialogTitle>
                   <DialogDescription>
-                    A RAG-powered chatbot that provides accurate, context-aware answers.
+                    A RAG-powered chatbot that provides accurate, context-aware
+                    answers.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div>
-                    <h3 className="font-semibold mb-2">How to use:</h3>
+                    <h3 className="text-gray-700 dark:text-gray-300 font-semibold mb-2">
+                      How to use:
+                    </h3>
                     <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1 list-disc list-inside">
                       <li>Ask questions to get helpful information</li>
-                      <li>The chatbot uses AI to provide accurate, context-aware answers</li>
+                      <li>
+                        The chatbot uses AI to provide accurate, context-aware
+                        answers
+                      </li>
                       <li>Your conversation history is saved automatically</li>
                     </ul>
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-2">Features:</h3>
+                    <h3 className="text-gray-700 dark:text-gray-300 font-semibold mb-2">
+                      Features:
+                    </h3>
                     <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1 list-disc list-inside">
                       <li>Export chat history as TXT or PDF</li>
                       <li>Copy conversations to clipboard</li>
@@ -414,7 +430,7 @@ export function WidgetMenu() {
                   </div>
                   <div>
                     <a
-                      href="https://arnobmahmud.com"
+                      href="https://www.arnobmahmud.com/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
@@ -438,12 +454,15 @@ export function WidgetMenu() {
                 <DialogHeader>
                   <DialogTitle>Feedback / Report Issue</DialogTitle>
                   <DialogDescription>
-                    Help us improve by sharing your feedback or reporting issues.
+                    Help us improve by sharing your feedback or reporting
+                    issues.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Email (optional)</label>
+                    <label className="text-sm text-gray-700 dark:text-gray-300  font-medium mb-2 block">
+                      Email (optional)
+                    </label>
                     <input
                       type="email"
                       value={feedbackEmail}
@@ -453,7 +472,9 @@ export function WidgetMenu() {
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Comment</label>
+                    <label className="text-sm text-gray-700 dark:text-gray-300  font-medium mb-2 block">
+                      Comment
+                    </label>
                     <textarea
                       value={feedbackComment}
                       onChange={(e) => setFeedbackComment(e.target.value)}
@@ -464,7 +485,10 @@ export function WidgetMenu() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setFeedbackOpen(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setFeedbackOpen(false)}
+                  >
                     Cancel
                   </Button>
                   <Button onClick={handleReportIssue}>Submit</Button>
@@ -473,59 +497,68 @@ export function WidgetMenu() {
             </Dialog>
 
             {/* Rate This Chatbot */}
-            {typeof window !== "undefined" && !localStorage.getItem("chatbot-rating-submitted") && (
-              <Dialog open={ratingOpen} onOpenChange={setRatingOpen}>
-                <DialogTrigger asChild>
-                  <button className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2">
-                    <Star className="w-4 h-4" />
-                    <span>Rate This Chatbot</span>
-                  </button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Rate This Chatbot</DialogTitle>
-                    <DialogDescription>
-                      How would you rate your experience?
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div className="flex justify-center gap-2">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          onClick={() => setFeedbackRating(star)}
-                          className={`text-3xl ${
-                            star <= feedbackRating
-                              ? "text-yellow-400"
-                              : "text-gray-300 dark:text-gray-600"
-                          }`}
-                        >
-                          ★
-                        </button>
-                      ))}
+            {typeof window !== "undefined" &&
+              !localStorage.getItem("chatbot-rating-submitted") && (
+                <Dialog open={ratingOpen} onOpenChange={setRatingOpen}>
+                  <DialogTrigger asChild>
+                    <button className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2">
+                      <Star className="w-4 h-4" />
+                      <span>Rate This Chatbot</span>
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Rate This Chatbot</DialogTitle>
+                      <DialogDescription>
+                        How would you rate your experience?
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="flex justify-center gap-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            onClick={() => setFeedbackRating(star)}
+                            className={`text-3xl ${
+                              star <= feedbackRating
+                                ? "text-yellow-400"
+                                : "text-gray-300 dark:text-gray-600"
+                            }`}
+                          >
+                            ★
+                          </button>
+                        ))}
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-700 dark:text-gray-300 font-medium mb-2 block">
+                          Comment (optional)
+                        </label>
+                        <textarea
+                          value={feedbackComment}
+                          onChange={(e) => setFeedbackComment(e.target.value)}
+                          rows={3}
+                          className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                          placeholder="Share your thoughts..."
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Comment (optional)</label>
-                      <textarea
-                        value={feedbackComment}
-                        onChange={(e) => setFeedbackComment(e.target.value)}
-                        rows={3}
-                        className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                        placeholder="Share your thoughts..."
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setRatingOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleSubmitRating} disabled={feedbackRating === 0}>
-                      Submit Rating
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            )}
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => setRatingOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleSubmitRating}
+                        disabled={feedbackRating === 0}
+                      >
+                        Submit Rating
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              )}
           </div>
         )}
       </div>
@@ -539,14 +572,17 @@ export function WidgetMenu() {
             const target = e.target as HTMLElement;
             if (
               target === e.currentTarget ||
-              (!target.closest('#cb-m-react') && !target.closest('#cb-d-react'))
+              (!target.closest("#cb-m-react") && !target.closest("#cb-d-react"))
             ) {
               setMenuOpen(false);
             }
           }}
           onMouseDown={(e) => {
             const target = e.target as HTMLElement;
-            if (target.closest('#cb-m-react') || target.closest('#cb-d-react')) {
+            if (
+              target.closest("#cb-m-react") ||
+              target.closest("#cb-d-react")
+            ) {
               e.stopPropagation();
             }
           }}

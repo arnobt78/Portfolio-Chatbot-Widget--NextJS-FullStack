@@ -164,7 +164,7 @@ export function ChatbotWidget() {
         <div
           ref={messagesContainerRef}
           className={cn(
-            "flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-5 py-3 sm:py-4 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-950",
+            "flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-5 py-3 sm:py-4 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-950 chatbot-messages-scrollbar",
             fontSizeClasses.message
           )}
         >
