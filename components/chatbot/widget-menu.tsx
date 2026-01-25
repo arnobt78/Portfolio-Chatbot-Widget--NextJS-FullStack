@@ -467,7 +467,7 @@ export function WidgetMenu() {
                       type="email"
                       value={feedbackEmail}
                       onChange={(e) => setFeedbackEmail(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600"
                       placeholder="your@email.com"
                     />
                   </div>
@@ -479,7 +479,7 @@ export function WidgetMenu() {
                       value={feedbackComment}
                       onChange={(e) => setFeedbackComment(e.target.value)}
                       rows={4}
-                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600"
                       placeholder="Your feedback or issue description..."
                     />
                   </div>
@@ -537,7 +537,7 @@ export function WidgetMenu() {
                           value={feedbackComment}
                           onChange={(e) => setFeedbackComment(e.target.value)}
                           rows={3}
-                          className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                          className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600"
                           placeholder="Share your thoughts..."
                         />
                       </div>
